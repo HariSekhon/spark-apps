@@ -42,7 +42,8 @@ spark-submit --master ... \
 
              <index>/<type> \
 
-             <Elasticsearch,node,list,comma,separated>```
+             <Elasticsearch,node,list,comma,separated>
+```
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn, see your cluster admin for help with this.
 
