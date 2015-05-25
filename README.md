@@ -5,7 +5,7 @@ Spark => Elasticsearch
 
 Generic Spark to Elasticsearch indexing application written in Scala.
 
-This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent toolbox repo https://github.com/harisekhon/toolbox for those programs
+This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent toolbox repo https://github.com/harisekhon/toolbox for those programs.
 
 Hari Sekhon
 
@@ -22,7 +22,7 @@ git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
 sbt clean assembly
 ```
-Now find the jar under target/
+Now find the jar under target/scala-*/.
 
 ### Usage ###
 
@@ -30,7 +30,7 @@ The data path is passed to Spark context's textFile() method which can take a di
 
 ```spark-submit ... --class TextToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar '/path/to/*.log' <Elasticsearch_Cluster_name> <index>/<type> <Elasticsearch,node,list,comma,separated>```
 
-You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when employing all the performance tuning and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn, see your cluster admin for help with this (or pay me to help you :) ).
+You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn, see your cluster admin for help with this.
 
 ### Contributions ###
 
