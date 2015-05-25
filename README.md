@@ -28,7 +28,14 @@ Now find the jar under target/scala-*/.
 
 The data path is passed to Spark context's textFile() method which can take a directory or glob of files including compressed files such as bz2.
 
-```spark-submit ... --class TextToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar '/path/to/*.log' <Elasticsearch_Cluster_name> <index>/<type> <Elasticsearch,node,list,comma,separated>```
+The order of the arguments is important here:
+```spark-submit --master ... \
+                --class TextToElasticsearch \
+                target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                '/path/to/*.log' \
+                <Elasticsearch_Cluster_name> \
+                <index>/<type> \
+                <Elasticsearch,node,list,comma,separated>```
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn, see your cluster admin for help with this.
 
