@@ -7,6 +7,7 @@
 language: scala
 jdk: oraclejdk7
 scala:
-  - 2.9.3
+  # no dep available for org.elasticsearch#elasticsearch-spark_2.9.3;2.1.0.Beta4
+  #- 2.9.3
   - 2.10.4
   - 2.11.2
