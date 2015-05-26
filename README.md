@@ -1,4 +1,4 @@
-Spark => Elasticsearch
+Spark => Elasticsearch [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
 ================================
 
 *Incomplete - don't fork or use it yet please.*
