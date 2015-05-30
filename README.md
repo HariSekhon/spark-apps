@@ -1,9 +1,9 @@
 Spark => Elasticsearch
 ================================
 
-*Incomplete - don't fork or use it yet please.*
-
 Generic Spark to Elasticsearch indexing application written in Scala.
+
+This is early days and there is still work to do on parsing date from logs to index for allowing time range queries in Elasticsearch.
 
 This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent toolbox repo https://github.com/harisekhon/toolbox for those programs.
 
@@ -15,14 +15,20 @@ http://www.linkedin.com/in/harisekhon
 
 ### Build ###
 
-Use the standard SBT build process to automatically pull in all dependencies and build the job jar:
+Uses the standard SBT build process to automatically pull in all dependencies and the assembly plugin to build an uber jar for simpler Spark deployments. Run the following commands to download and build the jar:
 
 ```
 git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
-sbt clean assembly
+<!--
+make
 ```
-Now find the jar under target/scala-*/.
+This will download my java utility library from Github and then run ```sbt clean assembly```.
+-->
+sbt assembly
+```
+
+After this finishes you can find the Spark application jar under target/scala-*/.
 
 ### Usage ###
 
