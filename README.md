@@ -20,7 +20,7 @@ Uses the standard SBT build process to automatically pull in all dependencies an
 ```
 git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
-sbt assembly
+sbt clean assembly
 ```
 <!--
 make
