@@ -3,7 +3,7 @@ Spark => Elasticsearch [![Build Status](https://travis-ci.org/harisekhon/spark-t
 
 Generic Spark to Elasticsearch indexing application written in Scala.
 
-This is still a bit raw but it works. Still on the todo list is attempting date parsing from logs for creating a time range query-able field in Elasticsearch. Right now this provides for full text search with file path and offset locations.
+This is still a bit raw but it works and provides full-ttext search with file path and offset locations for data stored in Hadoop or even locally (hint: prefix the data path with ```hdfs://nameservice1/``` or ```file://``` to switch between them). Still on the todo list is attempting date parsing from logs for creating a extra time range query-able field in Elasticsearch.
 
 This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent toolbox repo https://github.com/harisekhon/toolbox for those programs.
 
