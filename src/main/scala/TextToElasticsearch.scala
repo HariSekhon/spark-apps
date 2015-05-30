@@ -29,6 +29,7 @@ import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.{ FileSplit, TextInputFormat }
 import org.apache.spark.rdd.HadoopRDD
+// for Kryo serialization
 import java.lang.Long
 
 object TextToElasticsearch {
@@ -70,18 +71,30 @@ object TextToElasticsearch {
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
     // TODO: re-enable and figure out the right class registration magic
-    //conf.set("spark.kryo.registrationRequired", "true")
+    conf.set("spark.kryo.registrationRequired", "true")
     conf.registerKryoClasses(
       Array(
-        classOf[Text],
-        classOf[LongWritable],
-        classOf[Array[Text]],
-        classOf[Array[LongWritable]],
+        classOf[String],
+        classOf[Array[String]],
+        //classOf[scala.Long],
+        //classOf[Array[scala.Long]],
+        // Kryo doesn't seem to like serializing Scala Long so use Java Long
+        classOf[Long],
+        classOf[Array[Long]],
+        // Kryo also doesn't seem to like serializing Hadoop Writable types, so converting back to basic types instead
+        //classOf[Text],
+        //classOf[LongWritable],
+        //classOf[Array[Text]],
+        //classOf[Array[LongWritable]],
         //classOf[Line],
         //classOf[DateLine],
         classOf[FileLine],
         classOf[FileDateLine],
-        classOf[Array[Object]]))
+        classOf[Array[FileLine]],
+        classOf[Array[FileDateLine]]
+        //classOf[Array[Object]]
+      )
+    )
     //conf.setOutputFormatClass(EsOutputFormat.class)
     //conf.set("mapred.output.format.class", "org.elasticsearch.hadoop.mr.EsOutputFormat")
     //conf.setOutputCommitter(classOf[FileOutputCommitter])
@@ -106,6 +119,8 @@ object TextToElasticsearch {
         //println("\n*** INPUTSPLIT %s,%s,%s\n".format(filepath,l._1,l._2))
         //(filepath, l._1, l._2)
         // XXX: Hadoop Text formats blow up Kryo and later on ElasticSearch so convert them to basic types - review this as surely everyone else must have worked around this before without having to do what might be costly at scale conversions
+        //(filepath.toString(), l._1.toString().toLong, l._2.toString())
+        // Kryo doesn't seem to like serializing Scala Long so use Java Long
         (filepath.toString(), Long.valueOf(l._1.toString()).longValue(), l._2.toString())
         }
       }
