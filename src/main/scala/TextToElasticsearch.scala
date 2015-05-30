@@ -36,25 +36,20 @@ object TextToElasticsearch {
 
   def main(args: Array[String]) {
 
-    // copy elasticsearch.yml to classpath to get the cluster name to join
-    // find and add ./elasticsearch.yml, then /etc/elasticsearch/elasticsearch.yml, then /usr/local/elasticsearch/config/elasticsearch.yml to
-    // classpath automatically with preference to local directory
-    // UPDATE: don't use elasticsearch.yml it's simpler to just have user specify the cluster name as an arg, consider adding elasticsearch.yml support later as well as ENV VAR support using personal lib
     // set index.refresh_interval = -1 as the index and then set back at end of job
     // actually do this in the the shell script outside of code to give flexibility as ppl may not want this
 
-    if (args.length < 4) {
-      println("usage: TextToElasticsearch </path/to/*.log> <Elasticsearch_Cluster_Name> <index>/<type> <Elasticsearch,node,list,comma,separated>")
+    if (args.length < 3) {
+      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <Elasticsearch,node,list,comma,separated>")
       System.exit(3)
     }
 
-    // TODO: input validation of path globs, cluster name, index/type and nodes against hosts/IPs
+    // TODO: input validation of path globs, index/type and nodes against hosts/IPs
     val path = args(0)
-    val es_cluster_name = args(1)
-    val index = args(2)
-    val es_nodes = args(3)
+    val index = args(1)
+    val es_nodes = args(2)
 
-    // by default you will get tuple prefixes coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
+    // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     //case class Line(line: String)
     //case class DateLine(date: String, line: String)
     // case classes for use with lower level Hadoop InputFormat
@@ -67,10 +62,9 @@ object TextToElasticsearch {
 
     // AppName needs to be short since it gets truncated in Spark 4040 job Web UI
     val conf = new SparkConf().setAppName("Text=>ES:" + index)
-    //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName) 
+    //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
-    // TODO: re-enable and figure out the right class registration magic
     conf.set("spark.kryo.registrationRequired", "true")
     conf.registerKryoClasses(
       Array(
@@ -95,11 +89,7 @@ object TextToElasticsearch {
         //classOf[Array[Object]]
       )
     )
-    //conf.setOutputFormatClass(EsOutputFormat.class)
-    //conf.set("mapred.output.format.class", "org.elasticsearch.hadoop.mr.EsOutputFormat")
-    //conf.setOutputCommitter(classOf[FileOutputCommitter])
-    //conf.set(ConfigurationOptions.ES_RESOURCE_WRITE, index)
-    //conf.set(ConfigurationOptions.ES_NODES, es_nodes)
+    
     conf.set("es.resource", index)
     conf.set("es.nodes", es_nodes)
     // avoid this as it will introduce unnecessary duplicates into the Elasticsearch index, trade off as we may get slowed down a little by straggler tasks
@@ -156,15 +146,6 @@ object TextToElasticsearch {
       //FileLine(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
     })
     es_map.saveToEs(index)
-
-    // Don't do this use the high level Spark API provided by Elastic company
-    //
-    //println("Instantiating Elasticsearch native cluster node to be a direct routing client")
-    //val node = nodeBuilder().clusterName(es_cluster_name).client(true).node()
-    //val client = node.client()
-    //node.close()
-    // do per partition iteration on RDDs to ameliorate cost of client creation
-    //val json = "{ \"line\": " + "}" 
 
     lines.unpersist()
     // TODO: do elasticsearch query vs count reporting here
