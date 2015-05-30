@@ -20,13 +20,13 @@ Uses the standard SBT build process to automatically pull in all dependencies an
 ```
 git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
+sbt assembly
+```
 <!--
 make
 ```
 This will download my java utility library from Github and then run ```sbt clean assembly```.
 -->
-sbt assembly
-```
 
 After this finishes you can find the Spark application jar under target/scala-*/.
 
