@@ -32,7 +32,7 @@ After this finishes you can find the Spark application jar under target/scala-*/
 
 ### Usage ###
 
-The data path is passed to Spark context's textFile() method which can take a directory or glob of files including compressed files such as bz2.
+The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, but does not support recursion at this time and the Spark job will error out if it detects subdirectories.
 
 The order of the arguments is important here:
 ```
