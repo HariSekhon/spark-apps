@@ -46,11 +46,24 @@ object TextToElasticsearch {
     val es_cluster_name = args(1)
     val index = args(2)
     val es_nodes = args(3)
-    // "localhost:9200"
+    
+    // by default you will get tuple prefixes coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
+    case class Line(line: String)
+    case class DateLine(date: String, line: String)
+    
     // AppName needs to be short since it gets truncated in Spark 4040 job Web UI
     val conf = new SparkConf().setAppName("Text=>ES:" + index)
     //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName) 
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
+    conf.set("spark.kryo.registrationRequired", "true" )
+    conf.registerKryoClasses(
+        Array(
+          classOf[Line], 
+          classOf[DateLine],
+          classOf[Array[Object]]
+        )
+    )
     //conf.setOutputFormatClass(EsOutputFormat.class)
     //conf.set("mapred.output.format.class", "org.elasticsearch.hadoop.mr.EsOutputFormat")
     //conf.setOutputCommitter(classOf[FileOutputCommitter])
@@ -66,8 +79,18 @@ object TextToElasticsearch {
     // this is collected not an RDD at this point
     // count.saveAsTextFile("/tmp/" + path)
     println("Indexing %s (%s records) to Elasticsearch index '%s' (nodes: '%s')".format(path, count, index, es_nodes))
-    //println("INDEXING NOT IMPLEMENTED YET")
-    lines.saveToEs(index)
+    val es_map = lines.map(line => {
+      // TODO: implement date parsing and make use of DateLine if possible for Elasticsearch range time queries
+      // if we find don't find the date (date == null) create only Line class not DateLine which would end up being
+      if(true){
+        println("sending only line")
+        Line(line)
+      } else {
+        println("sending date + line")
+        DateLine(null, line)
+      }
+    })
+    es_map.saveToEs(index)
 
     // Don't do this use the high level Spark API provided by Elastic company
     //
