@@ -22,6 +22,8 @@ scalaVersion := "2.10.4"
 //resolvers += "clojars" at "https://clojars.org/repo"
 //resolvers += "conjars" at "http://conjars.org/repo"
 
+unmanagedBase := baseDirectory.value / "lib/target"
+
 libraryDependencies ++= Seq (
     // %% appends scala version to spark-core
     "org.apache.spark" %% "spark-core" % "1.3.1" % "provided",
