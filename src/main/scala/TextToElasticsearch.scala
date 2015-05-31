@@ -19,11 +19,11 @@
 //
 // https://github.com/harisekhon/toolbox
 
+import HariSekhon.Utils._
 import org.elasticsearch.spark._
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
-//import org.elasticsearch.node.NodeBuilder._
 import java.io.{ PrintWriter, File }
 import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
@@ -36,18 +36,19 @@ object TextToElasticsearch {
 
   def main(args: Array[String]) {
 
-    // set index.refresh_interval = -1 as the index and then set back at end of job
-    // actually do this in the the shell script outside of code to give flexibility as ppl may not want this
+    // set index.refresh_interval = -1 on the index and then set back at end of job
+    // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
     if (args.length < 3) {
       println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <Elasticsearch,node,list,comma,separated>")
-      System.exit(3)
+      System.exit(ERRORS.get("UNKNOWN"))
     }
 
     // TODO: input validation of path globs, index/type and nodes against hosts/IPs
     val path = args(0)
+    //val index = validate_elasticsearch_index(args(1))
     val index = args(1)
-    val es_nodes = args(2)
+    val es_nodes = validate_nodeport_list(args(2))
 
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     //case class Line(line: String)
@@ -155,7 +156,7 @@ object TextToElasticsearch {
 
     // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
     val count_file = index.replaceAll("[^A-Za-z0-9_-]", "_")
-    println("*** Finished, writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed".format(index, count_file))
+    println("\n*** Finished, writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed\n".format(index, count_file))
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
