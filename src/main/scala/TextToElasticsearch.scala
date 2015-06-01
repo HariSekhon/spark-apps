@@ -40,7 +40,7 @@ object TextToElasticsearch {
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
     if (args.length < 3) {
-      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...>")
+      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...> <nocount_boolean>")
       System.exit(exit_codes.get("UNKNOWN"))
     }
 
@@ -49,6 +49,8 @@ object TextToElasticsearch {
     //val index = validate_elasticsearch_index(args(1))
     val index = args(1)
     val es_nodes = validate_nodeport_list(args(2))
+    // // in testing this makes no difference to the performance
+    val no_count: Boolean = args.length > 3
 
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     //case class Line(line: String)
@@ -101,6 +103,7 @@ object TextToElasticsearch {
     //val lines = sc.textFile(path).cache()
     // thought I was on to something with lines.name but this returns the file glob, not the individual file names so
     // must go lower level to Hadoop InputFormat to allow us to index the originating filename as textFile() doesn't allow for this
+    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
     val lines = sc.hadoopFile(path, classOf[TextInputFormat], classOf[LongWritable], classOf[Text], sc.defaultMinPartitions)
     val hadoopRdd = lines.asInstanceOf[HadoopRDD[LongWritable, Text]]
     val fileLines = hadoopRdd.mapPartitionsWithInputSplit { (inputSplit, iterator) =>
@@ -118,16 +121,19 @@ object TextToElasticsearch {
       }
     }.cache()
     
+    val start: Long =  System.currentTimeMillis
     // ====================================================
-    // TODO: make this a configurable command line switch as it's expensive to do
-    println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
-    //val count = lines.count()
-    val count = fileLines.count()
-    // this is collected not an RDD at this point, save using local file PrintWriter at the end after Spark job
-    // count.saveAsTextFile("/tmp/" + path)   
+    var count : String = "uncounted"
+    if(!no_count){
+      println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
+      //val count = lines.count().toString()
+      count = fileLines.count().toString()
+      // this is collected not an RDD at this point, save using local file PrintWriter at the end after Spark job
+      // count.saveAsTextFile("/tmp/" + path)   
+    }
     // =====================================================
-    
-    println("\n*** Indexing %s (%s records) to Elasticsearch index '%s' (nodes: '%s')\n".format(path, count, index, es_nodes))
+
+    println("\n*** Indexing path '%s' (%s records) to Elasticsearch index '%s' (nodes: '%s')\n".format(path, count, index, es_nodes))
     /*
     val es_map = lines.map(line => {
       // TODO: implement date parsing and make use of DateLine if possible for Elasticsearch range time queries
@@ -161,11 +167,20 @@ object TextToElasticsearch {
     sc.stop()
     // TODO: tie in with count above to be an optional switch
     val count_file = index.replaceAll("[^A-Za-z0-9_-]", "_")
-    println("\n*** Finished, writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed\n".format(index, count_file))
+    val secs = (System.currentTimeMillis - start) / 1000
+    println("\n*** Finished indexing path '%s' (%s records) to Elasticsearch index '%s' (nodes: %s) in %d secs\n".format(path, count, index, es_nodes, secs))
+    // leave count file with contents "uncounted" as a placeholder to reduce confusion
+    if(count != "uncounted"){
+      println("writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed\n".format(index, count_file))
+    } else {
+      println("writing uncounted placeholder file for index '%s' to /tmp/%s.count\n".format(index, count_file))
+    }
+    // Still write the file for uniformity
     // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
+    //}
     
   }
 
