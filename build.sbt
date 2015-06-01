@@ -27,7 +27,9 @@ unmanagedBase := baseDirectory.value / "lib/target"
 libraryDependencies ++= Seq (
     // %% appends scala version to spark-core
     "org.apache.spark" %% "spark-core" % "1.3.1" % "provided",
+    "org.apache.spark" %% "spark-streaming" % "1.3.1" % "provided",
     "org.apache.hadoop" % "hadoop-client" % "2.6.0" % "provided",
+    "org.apache.spark" %% "spark-streaming-kafka" % "1.3.1",
     //"org.elasticsearch" % "elasticsearch" % "1.4.1"
     // this pulled in loads of deps for Clojure and others which wouldn't resolve, using elasticsearch-spark instead
     //"org.elasticsearch" % "elasticsearch-hadoop" % "2.0.2"

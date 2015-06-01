@@ -40,7 +40,7 @@ object TextToElasticsearch {
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
     if (args.length < 3) {
-      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <Elasticsearch,node,list,comma,separated>")
+      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...>")
       System.exit(ERRORS.get("UNKNOWN"))
     }
 
