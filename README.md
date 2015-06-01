@@ -28,7 +28,7 @@ After this finishes you can find the Spark application jar under target/scala-*/
 
 ### Usage ###
 
-The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, but does not support recursion at this time and the Spark job will error out if it detects subdirectories.
+The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, and also supports directory recursion.
 
 The order of the arguments is important here:
 ```
