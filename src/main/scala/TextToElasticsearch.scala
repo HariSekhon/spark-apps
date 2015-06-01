@@ -40,11 +40,11 @@ object TextToElasticsearch {
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
     if (args.length < 3) {
-      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <Elasticsearch,node,list,comma,separated>")
-      System.exit(ERRORS.get("UNKNOWN"))
+      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...>")
+      System.exit(exit_codes.get("UNKNOWN"))
     }
 
-    // TODO: input validation of path globs, index/type and nodes against hosts/IPs
+    // TODO: input validation of path dir/file/globs and <index/type>
     val path = args(0)
     //val index = validate_elasticsearch_index(args(1))
     val index = args(1)
@@ -63,19 +63,20 @@ object TextToElasticsearch {
 
     // AppName needs to be short since it gets truncated in Spark 4040 job Web UI
     val conf = new SparkConf().setAppName("Text=>ES:" + index)
+    // TODO: add option to disable Kryo serialization
     //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
     conf.set("spark.kryo.registrationRequired", "true")
     conf.registerKryoClasses(
       Array(
-        classOf[String],
-        classOf[Array[String]],
+        //classOf[String],
+        //classOf[Array[String]],
         //classOf[scala.Long],
         //classOf[Array[scala.Long]],
         // Kryo doesn't seem to like serializing Scala Long so use Java Long
-        classOf[Long],
-        classOf[Array[Long]],
+        //classOf[Long],
+        //classOf[Array[Long]],
         // Kryo also doesn't seem to like serializing Hadoop Writable types, so converting back to basic types instead
         //classOf[Text],
         //classOf[LongWritable],
@@ -84,9 +85,9 @@ object TextToElasticsearch {
         //classOf[Line],
         //classOf[DateLine],
         classOf[FileLine],
-        classOf[FileDateLine],
-        classOf[Array[FileLine]],
-        classOf[Array[FileDateLine]]
+        //classOf[FileDateLine],
+        classOf[Array[FileLine]]
+        //classOf[Array[FileDateLine]]
         //classOf[Array[Object]]
       )
     )
@@ -116,11 +117,16 @@ object TextToElasticsearch {
         }
       }
     }.cache()
+    
+    // ====================================================
+    // TODO: make this a configurable command line switch as it's expensive to do
     println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
     //val count = lines.count()
     val count = fileLines.count()
     // this is collected not an RDD at this point, save using local file PrintWriter at the end after Spark job
-    // count.saveAsTextFile("/tmp/" + path)
+    // count.saveAsTextFile("/tmp/" + path)   
+    // =====================================================
+    
     println("\n*** Indexing %s (%s records) to Elasticsearch index '%s' (nodes: '%s')\n".format(path, count, index, es_nodes))
     /*
     val es_map = lines.map(line => {
@@ -153,14 +159,14 @@ object TextToElasticsearch {
     // the high level API would pull all data through RDD whereas I just want the hit count header on first page of 10 results
     // maybe handle this in calling script instead
     sc.stop()
-
-    // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
+    // TODO: tie in with count above to be an optional switch
     val count_file = index.replaceAll("[^A-Za-z0-9_-]", "_")
     println("\n*** Finished, writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed\n".format(index, count_file))
+    // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
-
+    
   }
 
 }
