@@ -22,7 +22,7 @@ git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
 make
 ```
-This will download my Java utility library from Github and then runs ```sbt clean assembly``` to generate the Spark application jar.
+This will download my Java utility library submodule from Github, build it with Maven to be included as a dependency before using SBT to generate the Spark application jar. Maven and SBT must be in the $PATH.
 
 After this finishes you can find the Spark application jar under target/scala-*/.
 
