@@ -39,7 +39,12 @@ The order of the arguments is important here:
 ##### Real-time Kafka Spark Streaming to Elasticsearch #####
 
 ```
-spark-submit ... --class KafkaToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar --kafka <kafka1:9092,kafka2:9092,...> --index <index>/<type> --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
+spark-submit ... --class KafkaToElasticsearch \
+                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 --kafka <kafka1:9092,kafka2:9092,...> \
+                 --topic <topic> \
+                 --index <index>/<type> \
+                 --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
 ```
 
 ##### Batch HDFS / local storage to Elasticsearch #####
@@ -47,7 +52,11 @@ spark-submit ... --class KafkaToElasticsearch target/scala-*/spark-to-elasticsea
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ```
-spark-submit ... --class TextToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar --path '/path/to/*.log.bz2' --index <index>/<type> --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
+spark-submit ... --class TextToElasticsearch \
+                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 --path '/path/to/*.log.bz2' \
+                 --index <index>/<type> \
+                 --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
 ```
 
 ### Contributions ###
