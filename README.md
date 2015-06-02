@@ -26,20 +26,20 @@ git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
 make
 ```
-This will download my Java utility library from Github and then runs ```sbt clean assembly``` to generate the Spark application jar.
+Requires SBT and Maven to be in the $PATH. Make will first download and build my Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
 
 After this finishes you can find the Spark application jar under target/scala-*/.
 
 ### Usage ###
 
-The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, but does not support recursion at this time and the Spark job will error out if it detects subdirectories.
+The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, and also supports directory recursion.
 
 The order of the arguments is important here:
 
 ##### Real-time Kafka Spark Streaming to Elasticsearch #####
 
 ```
-spark-submit ... --class KafkaToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar <kafka1:9092,kafka2:9092,...> <index>/<type> <elasticsearch1:9200,elasticseach2:9200,...>
+spark-submit ... --class KafkaToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar --kafka <kafka1:9092,kafka2:9092,...> --index <index>/<type> --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
 ```
 
 ##### Batch HDFS / local storage to Elasticsearch #####
@@ -47,7 +47,7 @@ spark-submit ... --class KafkaToElasticsearch target/scala-*/spark-to-elasticsea
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ```
-spark-submit ... --class TextToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar '/path/to/*.log' <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...>
+spark-submit ... --class TextToElasticsearch target/scala-*/spark-to-elasticsearch-assembly-*.jar --path '/path/to/*.log.bz2' --index <index>/<type> --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
 ```
 
 ### Contributions ###
