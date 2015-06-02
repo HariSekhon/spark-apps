@@ -21,6 +21,8 @@
 
 import HariSekhon.Utils._
 import org.elasticsearch.spark._
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
@@ -39,19 +41,63 @@ object TextToElasticsearch {
     // set index.refresh_interval = -1 on the index and then set back at end of job
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
-    if (args.length < 3) {
-      println("usage: TextToElasticsearch </path/to/*.log> <index>/<type> <elasticsearch1:9200,elasticsearch2:9200,...> <nocount_boolean>")
-      System.exit(exit_codes.get("UNKNOWN"))
-    }
-
-    // TODO: input validation of path dir/file/globs and <index/type>
-    val path = args(0)
+    // must use older commons-cli API to not conflict with Spark's embedded commons-cli
+    // urgh this would work in Java but not in Scala since due to static class 
+    //options.addOption(OptionBuilder.withLongOpt("index").withArgName("index").withDescription("Elasticsearch index and type in the format index/type").create("i"))
+    //options.addOption(OptionBuilder.withLongOpt("path").withArgName("dir").withDescription("HDFS / File / Directory path to recurse and index to Elasticsearch").create("p"))
+    //options.addOption(OptionBuilder.withLongOpt("es-nodes").withArgName("nodes").withDescription("Elasticsearch node list, comma separated (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver using a direct connection and doesn't yet use a native cluster join as it does in the regular Java API").create("E"))
+    //options.addOption(OptionBuilder.withLongOpt("count").withDescription("Generate a total count of the lines to index, for both reporting during the index job as well as writing it to '/tmp/<index_name>.count' to later comparison. This causes an extra job and shuffle and should be avoided for high volume or when you need to get things done quicker").create("c"))
+    // XXX: this is awful consider replacing Apache Commons CLI with something else:
+    //
+    options.addOption("c", "count", false, "Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
+    // this way doesn't print the description: 
+    //OptionBuilder.withLongOpt("count")
+    //OptionBuilder.withDescription("Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
+    //options.addOption(OptionBuilder.create("c"))
+    //
+    OptionBuilder.withLongOpt("path")
+    OptionBuilder.withArgName("path")
+    OptionBuilder.withDescription("HDFS / File / Directory path to recurse and index to Elasticsearch")
+    OptionBuilder.hasArg()
+    OptionBuilder.isRequired()
+    options.addOption(OptionBuilder.create("p"))
+    //
+    OptionBuilder.withLongOpt("index")
+    OptionBuilder.withArgName("index")
+    OptionBuilder.withDescription("Elasticsearch index and type in the format 'index/type'")
+    OptionBuilder.hasArg()
+    OptionBuilder.isRequired()
+    options.addOption(OptionBuilder.create("i"))
+    //
+    OptionBuilder.withLongOpt("es-nodes")
+    OptionBuilder.withArgName("nodes")
+    OptionBuilder.withDescription("Elasticsearch node list, comma separated (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
+    OptionBuilder.hasArg()
+    OptionBuilder.isRequired()
+    options.addOption(OptionBuilder.create("E"))
+    
+    val cmd = get_options(args)
+        
+    val path: String = cmd.getOptionValue("p")
     //val index = validate_elasticsearch_index(args(1))
-    val index = args(1)
-    val es_nodes = validate_nodeport_list(args(2))
+    val index: String = cmd.getOptionValue("i")
+    //val es_nodes = validate_nodeport_list(args(2))
+    val es_nodes: String = cmd.getOptionValue("E")
     // // in testing this makes no difference to the performance
-    val no_count: Boolean = args.length > 3
+    val do_count: Boolean = cmd.hasOption("c")
 
+    // TODO: proper input validation of path dir/file/globs and <index/type> using my java lib later 
+    if(path == null){
+      usage("--path not set")
+    }
+    if(index == null){
+      usage("--index not set")
+    }
+    if(es_nodes == null){
+      usage("--es-nodes not set")
+    }
+    validate_nodeport_list(es_nodes)
+    
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     //case class Line(line: String)
     //case class DateLine(date: String, line: String)
@@ -124,7 +170,7 @@ object TextToElasticsearch {
     val start: Long =  System.currentTimeMillis
     // ====================================================
     var count : String = "uncounted"
-    if(!no_count){
+    if(do_count){
       println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
       //val count = lines.count().toString()
       count = fileLines.count().toString()

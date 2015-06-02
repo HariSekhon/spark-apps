@@ -28,8 +28,12 @@ libraryDependencies ++= Seq (
     // %% appends scala version to spark-core
     "org.apache.spark" %% "spark-core" % "1.3.1" % "provided",
     "org.apache.hadoop" % "hadoop-client" % "2.6.0" % "provided",
-    //"org.elasticsearch" % "elasticsearch" % "1.4.1"
+    //"org.elasticsearch" % "elasticsearch" % "1.4.1",
     // this pulled in loads of deps for Clojure and others which wouldn't resolve, using elasticsearch-spark instead
-    //"org.elasticsearch" % "elasticsearch-hadoop" % "2.0.2"
-    "org.elasticsearch" %% "elasticsearch-spark" % "2.1.0.Beta4"
+    //"org.elasticsearch" % "elasticsearch-hadoop" % "2.0.2",
+    "org.elasticsearch" %% "elasticsearch-spark" % "2.1.0.Beta4",
+    // Spark has it's own older version of commons-cli and using the newer 1.3 API methods causes:
+    // Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
+    //"commons-cli" % "commons-cli" % "1.3"
+    "commons-cli" % "commons-cli" % "1.2"
 )
