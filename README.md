@@ -32,7 +32,7 @@ After this finishes you can find the Spark application jar under target/scala-*/
 
 ### Usage ###
 
-The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop natively supports such as .gz / .bz2, and also supports directory recursion.
+The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop has native support such as .gz / .bz2. Also supports directory recursion.
 
 The order of the arguments is important here:
 
