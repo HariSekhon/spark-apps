@@ -13,5 +13,13 @@
 
 make:
 	git submodule update --init
-	cd lib && mvn clean package
-	sbt clean assembly
+	cd lib && mvn package
+	sbt assembly
+
+clean:
+	cd lib && mvn clean
+	echo sbt clean
+
+update:
+	git submodule update --init
+	make clean make
