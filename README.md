@@ -45,7 +45,7 @@ You will likely need to throttle this job given it's easy for a Hadoop/Spark clu
 ```
 make update
 ```
-This will update the library submodule and then run make.
+This will not only git pull but also fetch the correct version of the library submodule to match and then run a clean make to rebuild all dependencies for the library submodule followed by the Spark application.
 
 ### Contributions ###
 
