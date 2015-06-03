@@ -32,10 +32,10 @@ The given data path may be a directory, a file glob or comma separated list and 
 
 The order of the arguments is important here:
 ```
-spark-submit ... --class TextToElasticsearch \
+spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
                  target/scala-*/spark-to-elasticsearch-assembly-*.jar \
                  --path '/path/to/*.log.bz2' \
-                 --index <index>/<type> \
+                 --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
 ```
 
