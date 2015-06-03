@@ -21,5 +21,6 @@ clean:
 	echo sbt clean
 
 update:
+	git pull
 	git submodule update --init
 	make clean make
