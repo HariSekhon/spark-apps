@@ -18,7 +18,7 @@ make:
 
 clean:
 	cd lib && mvn clean
-	echo sbt clean
+	sbt clean
 
 update:
 	git pull
