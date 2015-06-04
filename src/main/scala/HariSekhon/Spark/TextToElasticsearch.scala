@@ -19,18 +19,22 @@
 //
 // https://github.com/harisekhon/toolbox
 
+package HariSekhon.Spark
+
 import HariSekhon.Utils._
 import org.elasticsearch.spark._
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionBuilder
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
-import java.io.{ PrintWriter, File }
 import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.{ FileSplit, TextInputFormat }
 import org.apache.spark.rdd.HadoopRDD
+import java.io.{ PrintWriter, File }
+import org.apache.hadoop.io.LongWritable
+import org.apache.hadoop.io.Text
+import org.apache.hadoop.mapred.TextInputFormat
 // for Kryo serialization
 import java.lang.Long
 
@@ -47,98 +51,164 @@ object TextToElasticsearch {
     //options.addOption(OptionBuilder.withLongOpt("path").withArgName("dir").withDescription("HDFS / File / Directory path to recurse and index to Elasticsearch").create("p"))
     //options.addOption(OptionBuilder.withLongOpt("es-nodes").withArgName("nodes").withDescription("Elasticsearch node list, comma separated (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver using a direct connection and doesn't yet use a native cluster join as it does in the regular Java API").create("E"))
     //options.addOption(OptionBuilder.withLongOpt("count").withDescription("Generate a total count of the lines to index, for both reporting during the index job as well as writing it to '/tmp/<index_name>.count' to later comparison. This causes an extra job and shuffle and should be avoided for high volume or when you need to get things done quicker").create("c"))
-    // XXX: this is awful consider replacing Apache Commons CLI with something else:
     //
-    options.addOption("c", "count", false, "Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
+    // XXX: Apache Commons CLI is awful - consider replacing later
+    //
     // this way doesn't print the description: 
     //OptionBuilder.withLongOpt("count")
     //OptionBuilder.withDescription("Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
     //options.addOption(OptionBuilder.create("c"))
+    options.addOption("c", "count", false, "Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
+    //
+    options.addOption("s", "safe-serialization", false, "Use safer Java serialization (slower). Only use this if you are getting ")
     //
     OptionBuilder.withLongOpt("path")
-    OptionBuilder.withArgName("path")
-    OptionBuilder.withDescription("HDFS / File / Directory path to recurse and index to Elasticsearch")
+    OptionBuilder.withArgName("dir|file|glob")
+    OptionBuilder.withDescription("HDFS / File / Directory path / glob to recurse and index to Elasticsearch")
     OptionBuilder.hasArg()
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("p"))
     //
     OptionBuilder.withLongOpt("index")
     OptionBuilder.withArgName("index")
-    OptionBuilder.withDescription("Elasticsearch index and type in the format 'index/type'")
+    OptionBuilder.withDescription("Elasticsearch index to send data to")
     OptionBuilder.hasArg()
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("i"))
     //
+    OptionBuilder.withLongOpt("type")
+    OptionBuilder.withArgName("type")
+    OptionBuilder.withDescription("Elasticsearch type (defaults to the same name as --index)")
+    OptionBuilder.hasArg()
+    options.addOption(OptionBuilder.create("y"))
+    //
     OptionBuilder.withLongOpt("es-nodes")
     OptionBuilder.withArgName("nodes")
-    OptionBuilder.withDescription("Elasticsearch node list, comma separated (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
+    OptionBuilder.withDescription("Elasticsearch node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
     OptionBuilder.hasArg()
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("E"))
-    
+    //
+    OptionBuilder.withLongOpt("parser")
+    OptionBuilder.withArgName("com.domain.MyParser")
+    OptionBuilder.withDescription("Custom parser class to use. Need to use --jars to supply the jar to spark if using this")
+    OptionBuilder.hasArg()
+    options.addOption(OptionBuilder.create())
+    //
+    //OptionBuilder.withLongOpt("esDocClass")
+    //OptionBuilder.withArgName("com.domain.ESDocumentClass")
+    //OptionBuilder.withDescription("Custom Elasticsearch document class for custom --parser to return, should be supplied using --jars as with --parser. Requires --parser")
+    //OptionBuilder.hasArg()
+    //options.addOption(OptionBuilder.create())
+
     val cmd = get_options(args)
-        
+
     val path: String = cmd.getOptionValue("p")
     val index: String = cmd.getOptionValue("i")
+    val es_type: String = if (cmd.hasOption("y")) {
+      cmd.getOptionValue("y")
+    } else {
+      index
+    }
+    //val es_nodes = validate_nodeport_list(args(2))
     val es_nodes: String = cmd.getOptionValue("E")
     // TODO: in testing this makes little difference to performance, test this more at scale
     val do_count: Boolean = cmd.hasOption("c")
+    val parser: String = if (cmd.hasOption("parser")) {
+      cmd.getOptionValue("parser")
+    } else {
+      "Parser"
+    }
+    // must know the doc type for Kryo efficient serialization
+    // TODO: try to find a way to not have to specify this, eg. Kryo the ElasticsearchDocument trait instead
+    //val es_doc: String = if(cmd.hasOption("esDocClass")){
+    //  cmd.getOptionValue("esDocClass")
+    //} else {
+    //  "FileLineDocument"
+    //}
+
+    val no_kryo = if (cmd.hasOption("safe-serialization")) {
+      true
+    } else {
+      false
+    }
 
     // TODO: proper input validation of path dir/file/globs and <index/type> using my java lib later 
-    if(path == null){
+    if (path == null) {
       usage("--path not set")
     }
-    if(index == null){
+    if (index == null) {
       usage("--index not set")
     }
-    if(es_nodes == null){
+    if (es_nodes == null) {
       usage("--es-nodes not set")
     }
     validate_nodeport_list(es_nodes)
-    
+
+    //if(es_doc != "FileLineDocument"){
+    //  if(parser == "Parser"){
+    //    usage("must specify custom --parser if using custom --esDocClass")
+    //  }
+    //}
+
+    /* this is what's been giving me java.lang.ClassNotFoundException: Parser
+    try {
+      //val classLoader = MainClass.class.getClassLoader();
+      val classLoader = java.lang.ClassLoader.getSystemClassLoader();
+      val parserClass = classLoader.loadClass(parser);
+      println("Parser = " + parserClass.getName());
+    } catch {
+      case e: ClassNotFoundException => e.printStackTrace();
+    }
+    */
+
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
-    //case class Line(line: String)
-    //case class DateLine(date: String, line: String)
-    // case classes for use with lower level Hadoop InputFormat
-    // Kryo serialization blows up on Hadoop types, do String conversions to work around
-    // ES Hadoop blows up if using Hadoop types in the case class
+    // case classes for use with lower level Hadoop InputFormat - now moved to top level ElasticsearchDocuments
+    // ES Hadoop also blows up if using Hadoop types in the case class
     //case class FileLine(file: Text, line: Text)
     //case class FileDateLine(file: Text, date: Text, line: Text)
-    case class FileLine(path: String, offset: Long, line: String)
-    case class FileDateLine(file: String, offset: Long, date: String, line: String)
+    //val parserClassName = Class.forName(parser);
+    //case class FileLine(path: String, offset: Long, line: String)
+    //case class FileDateLine(file: String, offset: Long, date: String, line: String)
+
+    //es_doc_class = 
 
     // AppName needs to be short since it gets truncated in Spark 4040 job Web UI
     val conf = new SparkConf().setAppName("Text=>ES:" + index)
-    // TODO: add option to disable Kryo serialization
-    //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
-    conf.set("spark.kryo.registrationRequired", "true")
-    conf.registerKryoClasses(
-      Array(
-        //classOf[String],
-        //classOf[Array[String]],
-        //classOf[scala.Long],
-        //classOf[Array[scala.Long]],
-        // Kryo doesn't seem to like serializing Scala Long so use Java Long
-        //classOf[Long],
-        //classOf[Array[Long]],
-        // Kryo also doesn't seem to like serializing Hadoop Writable types, so converting back to basic types instead
-        //classOf[Text],
-        //classOf[LongWritable],
-        //classOf[Array[Text]],
-        //classOf[Array[LongWritable]],
-        //classOf[Line],
-        //classOf[DateLine],
-        classOf[FileLine],
-        //classOf[FileDateLine],
-        classOf[Array[FileLine]]
-        //classOf[Array[FileDateLine]]
-        //classOf[Array[Object]]
-      )
-    )
-    
-    conf.set("es.resource", index)
+    if (!no_kryo) {
+      println("using Kryo serialization for efficiency")
+      //conf.set("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName)
+      conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      // enforce registering Kryo classes, don't allow sloppiness, doing things at high scale performance tuning matters
+      conf.set("spark.kryo.registrationRequired", "true")
+      conf.registerKryoClasses(
+        Array(
+          //classOf[String],
+          //classOf[Array[String]],
+          //classOf[scala.Long],
+          //classOf[Array[scala.Long]],
+          // Kryo doesn't seem to like serializing Scala Long so use Java Long
+          //classOf[Long],
+          //classOf[Array[Long]],
+          // Kryo also doesn't seem to like serializing Hadoop Writable types, so converting back to basic types instead
+          //classOf[Text],
+          //classOf[LongWritable],
+          //classOf[Array[Text]],
+          //classOf[Array[LongWritable]],
+          //classOf[Array[Object]]
+          //classOf[FileLineDocument],
+          //classOf[Array[FileLineDocument]],
+          //classOf[Class.forName(es_doc)]
+          //classOf[ElasticsearchDocument],
+          // this is not enough, as suspected must also register the inheriting document classes
+          classOf[Array[ElasticsearchDocument]],
+          classOf[FileLineDocument],
+          classOf[FileDateLineDocument]))
+    } else {
+      println("not using Kryo serialization, defaulting to slower but safer Java serialization")
+    }
+    // this isn't doing anything, it's the 
+    //nf.set("es.resource", index + "/" + es_type)
     conf.set("es.nodes", es_nodes)
     // avoid this as it will introduce unnecessary duplicates into the Elasticsearch index, trade off as we may get slowed down a little by straggler tasks
     conf.set("spark.speculation", "false")
@@ -147,28 +217,30 @@ object TextToElasticsearch {
     //val lines = sc.textFile(path).cache()
     // thought I was on to something with lines.name but this returns the file glob, not the individual file names so
     // must go lower level to Hadoop InputFormat to allow us to index the originating filename as textFile() doesn't allow for this
-    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
+    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
     val lines = sc.hadoopFile(path, classOf[TextInputFormat], classOf[LongWritable], classOf[Text], sc.defaultMinPartitions)
     val hadoopRdd = lines.asInstanceOf[HadoopRDD[LongWritable, Text]]
     val fileLines = hadoopRdd.mapPartitionsWithInputSplit { (inputSplit, iterator) =>
       // get the filename we're currently processing to record in Elasticsearch and strip off redundant file:/ and hdfs://nn:8020/ prefixes, not worth the extra bytes at scale
-      val filepath = inputSplit.asInstanceOf[FileSplit].getPath().toString().replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
-      iterator.map { l => {
-        // Keeping the offset now so you could order by offset and see the original ordering of lines in each file if wanted
-        //println("\n*** INPUTSPLIT %s,%s,%s\n".format(filepath,l._1,l._2))
-        //(filepath, l._1, l._2)
-        // XXX: Hadoop Text formats blow up Kryo and later on ElasticSearch so convert them to basic types - review this as surely everyone else must have worked around this before without having to do what might be costly at scale conversions
-        //(filepath.toString(), l._1.toString().toLong, l._2.toString())
-        // Kryo doesn't seem to like serializing Scala Long so use Java Long
-        (filepath.toString(), Long.valueOf(l._1.toString()).longValue(), l._2.toString())
+      val filepath = inputSplit.asInstanceOf[FileSplit].getPath().toString() // do this in Parser now for more flexibility: .replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
+      iterator.map { l =>
+        {
+          // Keeping the offset now so you could order by offset and see the original ordering of lines in each file if wanted
+          //println("\n*** INPUTSPLIT %s,%s,%s\n".format(filepath,l._1,l._2))
+          //(filepath, l._1, l._2)
+          // XXX: Hadoop Text formats blow up Kryo and later on ElasticSearch so convert them to basic types - review this as surely everyone else must have worked around this before without having to do what might be costly at scale conversions
+          //(filepath.toString(), l._1.toString().toLong, l._2.toString())
+          // Kryo serialization blows up on Hadoop types, do String conversions to work around
+          // Kryo doesn't seem to like serializing Scala Long so use Java Long too
+          (filepath.toString(), Long.valueOf(l._1.toString()).longValue(), l._2.toString())
         }
       }
     }.cache()
-    
-    val start: Long =  System.currentTimeMillis
+
+    val start: Long = System.currentTimeMillis
     // ====================================================
-    var count : String = "uncounted"
-    if(do_count){
+    var count: String = "uncounted"
+    if (do_count) {
       println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
       //val count = lines.count().toString()
       count = fileLines.count().toString()
@@ -198,11 +270,13 @@ object TextToElasticsearch {
       // XXX: only use this for debugging at small scale on your laptop!
       //println("\n*** path: '%s', offset: '%s', line: '%s'\n".format(l._1, l._2, l._3))
       // converting earlier in the pipeline now to avoid Kryo serialization errors
-      FileLine(l._1, l._2, l._3)
+      //Class.forName(parser).getConstructor().newInstance().parser(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString()) // parser.newInstance()(l._1, l._2, l._3)
       // last minute conversions to prevent org.elasticsearch.hadoop.serialization.EsHadoopSerializationException, did earlier conversions in fileLines mapPartitionsWithInputSplit and changed case class instead
       //FileLine(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      HariSekhon.Spark.Parser.parse(l._1, l._2, l._3)
     })
-    es_map.saveToEs(index)
+    es_map.saveToEs(index + "/" + es_type)
 
     lines.unpersist()
     // TODO: do elasticsearch query vs count reporting here
@@ -214,7 +288,7 @@ object TextToElasticsearch {
     val secs = (System.currentTimeMillis - start) / 1000
     println("\n*** Finished indexing path '%s' (%s records) to Elasticsearch index '%s' (nodes: %s) in %d secs\n".format(path, count, index, es_nodes, secs))
     // leave count file with contents "uncounted" as a placeholder to reduce confusion
-    if(count != "uncounted"){
+    if (count != "uncounted") {
       println("writing index count for index '%s' to /tmp/%s.count for convenience for cross referencing later if needed\n".format(index, count_file))
     } else {
       println("writing uncounted placeholder file for index '%s' to /tmp/%s.count\n".format(index, count_file))
@@ -225,7 +299,7 @@ object TextToElasticsearch {
     pw.write(count.toString)
     pw.close()
     //}
-    
+
   }
 
 }

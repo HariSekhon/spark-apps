@@ -24,7 +24,7 @@ Uses the standard SBT build process to automatically pull in all dependencies an
 ```
 git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
-make
+make clean make
 ```
 Requires SBT and Maven to be in the $PATH. Make will first download and build my Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
 
@@ -52,12 +52,20 @@ spark-submit ... --class KafkaToElasticsearch \
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ```
-spark-submit ... --class TextToElasticsearch \
+spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
                  target/scala-*/spark-to-elasticsearch-assembly-*.jar \
                  --path '/path/to/*.log.bz2' \
-                 --index <index>/<type> \
+                 --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
 ```
+
+You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
+
+### Updating ###
+```
+make update
+```
+This will not only git pull but also fetch the correct version of the library submodule to match and then run a clean make to rebuild all dependencies for the library submodule followed by the Spark application.
 
 ### Contributions ###
 
