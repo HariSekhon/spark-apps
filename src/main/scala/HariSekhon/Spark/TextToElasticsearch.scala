@@ -45,6 +45,8 @@ object TextToElasticsearch {
     // set index.refresh_interval = -1 on the index and then set back at end of job
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
+    BaseOptions
+    
     OptionBuilder.withLongOpt("path")
     OptionBuilder.withArgName("dir|file|glob")
     OptionBuilder.withDescription("HDFS / File / Directory path / glob to recurse and index to Elasticsearch")

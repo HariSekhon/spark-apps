@@ -35,6 +35,8 @@ object KafkaToElasticsearch {
 
   def main(args: Array[String]) {
 
+    BaseOptions
+    
     //
     //OptionBuilder.withLongOpt("zookeepers")
     //OptionBuilder.withArgName("zoo1,zoo2,...")
