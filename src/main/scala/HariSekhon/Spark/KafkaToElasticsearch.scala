@@ -19,45 +19,115 @@
 //
 // https://github.com/harisekhon/toolbox
 
+package HariSekhon.Spark
+
 import HariSekhon.Utils._
 import org.elasticsearch.spark._
 import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark._
 import org.apache.spark.streaming._
-// XXX: TODO: this shouldn't be needed but for some reason Seconds and StreamingContext aren't found
-//import org.apache.spark.streaming.{Seconds, StreamingContext}
-// not in Spark 1.3+
-//import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.kafka._
-// also not found for some reason - so much out of recent info is already out of date
-import kafka.serializer.StringDecoder
+import org.apache.commons.cli.OptionBuilder
 
 
 object KafkaToElasticsearch {
 
   def main(args: Array[String]) {
 
-    if (args.length < 5) {
-      println("usage: KafkaToElasticsearch <kafka1:9092,kafka2:9093,...> <index>/<type> <elasticsearch1:9200,elasticseach2:9200,...>")
-      System.exit(ERRORS.get("UNKNOWN"))
-    }
+    //
+    //OptionBuilder.withLongOpt("zookeepers")
+    //OptionBuilder.withArgName("zoo1,zoo2,...")
+    //OptionBuilder.withDescription("ZooKeeper node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,...). Required")
+    //OptionBuilder.hasArg()
+    //OptionBuilder.isRequired()
+    //options.addOption(OptionBuilder.create("Z"))
+    //
+    OptionBuilder.withLongOpt("kafka-brokers")
+    OptionBuilder.withArgName("kafka1,kafka2,...")
+    OptionBuilder.withDescription("Kafka broker list, comma separated with optional port numbers after each host (eg. kafka1:9092,kafka2:9092,...). Required")
+    OptionBuilder.hasArg()
+    OptionBuilder.isRequired()
+    options.addOption(OptionBuilder.create("K"))
+    //
+    OptionBuilder.withLongOpt("topic")
+    OptionBuilder.withArgName("topicname")
+    OptionBuilder.withDescription("Kafka topic to read from")
+    OptionBuilder.hasArg()
+    OptionBuilder.isRequired()
+    options.addOption(OptionBuilder.create("T"))
+    //
+    //OptionBuilder.withLongOpt("consumer-group")
+    //OptionBuilder.withArgName("group")
+    //OptionBuilder.withDescription("Kafka consumer group")
+    //OptionBuilder.hasArg()
+    //OptionBuilder.isRequired()
+    //options.addOption(OptionBuilder.create("G"))
+    //val num_partitions_to_consume = args(2)
+    //OptionBuilder.withLongOpt("num-partitions")
+    //OptionBuilder.withArgName("num")
+    //OptionBuilder.withDescription("Kafka number of partitions to consume")
+    //OptionBuilder.hasArg()
+    //OptionBuilder.isRequired()
+    //options.addOption(OptionBuilder.create("N"))
+    
+    val cmd = get_options(args)
 
     // this doesn't supported properly chrooted Kafka installs, must create new validation methods
     //val zk_list = validate_nodeport_list(args(0))
     //val zk_list = args(0);
-    val broker_list = args(0)
-    // TODO: make this an arg
-    val topics = Set("test")
+    val kafka_brokers = cmd.getOptionValue("K")
+    val topic = cmd.getOptionValue("T")
     // TODO: validate these are sane
-    //val consumer_group = args(1);
+    //val consumer_group = cmd.getOptionValue("G")
+    //val num_partitions_to_consume = cmd.getOptionValue("N")
+    
     // TODO: input validation of index/type
-    //val num_partitions_to_consume = args(2)
-    //val index = validate_elasticsearch_index(args(3))
-    val index = args(1)
-    val es_nodes = validate_nodeport_list(args(2))
+    val index: String = cmd.getOptionValue("i")
+    val es_type: String = if (cmd.hasOption("y")) {
+      cmd.getOptionValue("y")
+    } else {
+      index
+    }
+    //val es_nodes = validate_nodeport_list(args(2))
+    val es_nodes: String = cmd.getOptionValue("E")
+    // TODO: in testing this makes little difference to performance, test this more at scale
+    val do_count: Boolean = cmd.hasOption("c")
+    val parser: String = if (cmd.hasOption("parser")) {
+      cmd.getOptionValue("parser")
+    } else {
+      "Parser"
+    }
+    // must know the doc type for Kryo efficient serialization
+    // TODO: try to find a way to not have to specify this, eg. Kryo the ElasticsearchDocument trait instead
+    //val es_doc: String = if(cmd.hasOption("esDocClass")){
+    //  cmd.getOptionValue("esDocClass")
+    //} else {
+    //  "FileLineDocument"
+    //}
 
+    val no_kryo = if (cmd.hasOption("safe-serialization")) {
+      true
+    } else {
+      false
+    }
+
+    // TODO: proper input validation of path dir/file/globs and <index/type> using my java lib later 
+    if (kafka_brokers == null) {
+      usage("--k not set")
+    }
+    if (topic == null) {
+      usage("--k not set")
+    }
+    if (es_nodes == null) {
+      usage("--es-nodes not set")
+    }
+    if (index == null) {
+    	usage("--index not set")
+    }
+    validate_nodeport_list(kafka_brokers)
+    validate_nodeport_list(es_nodes)
+    
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     case class Line(line: String)
     case class DateLine(date: String, line: String)
