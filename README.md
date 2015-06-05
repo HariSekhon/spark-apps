@@ -22,7 +22,7 @@ git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
 make clean make
 ```
-Requires SBT and Maven to be in the $PATH. Make will first download and build my Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
+Requires SBT and Maven to be in the $PATH. Make will first download and build my personal Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
 
 After this finishes you can find the Spark application jar under target/scala-*/.
 
@@ -40,6 +40,12 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 ```
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
+
+### Advanced - Custom Parsers ###
+
+Uses Scala's new Reflection API in 2.10 to dynamically load the parser to allow for supplying your own Parser class at runtime for custom extensible parsing without modifying this stable base code.
+
+To use this functionality create your own parser class/object with a method ```parse(path: String, offset: Long, line: String)`` which returns an object representing an Elasticsearch document (implements ElasticsearchDocument and Serializble) containing only the fields you want to index. Package the parser class/object and the Elasticsearch document class in to a jar and then supply your class/object name and jar names as options on the ```spark-submit``` command line by specifying ```--jars parser.jar``` before spark-to-elasticsearch-assembly-*.jar and  ```--parser com.domain.MyParser --esDocClass com.domain.ESDocumentClass``` after it. See Parser.scala for how to implement this.
 
 ### Updating ###
 ```
@@ -60,3 +66,7 @@ https://github.com/harisekhon/toolbox
 The Advanced Nagios Plugins Collection for monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc:
 
 https://github.com/harisekhon/nagios-plugins
+
+My Java utility library that this code uses:
+
+https://github.com/harisekhon/lib-java
