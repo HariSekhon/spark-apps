@@ -1,3 +1,4 @@
+// Elasticsearch document
 //
 //  Author: Hari Sekhon
 //  Date: 2015-05-25 19:39:56 +0100 (Mon, 25 May 2015)
@@ -11,10 +12,9 @@
 
 package HariSekhon.Spark
 
-// Elasticsearch document
-//@SerialVersionUID(101L) // only serializes in ESHadoop if I make it a case class again
-case class FileLineDocument(path: String, offset: Long, line: String)
-  extends ElasticsearchDocument //with Serializable 
+//@SerialVersionUID(102L) // only serializes in ESHadoop if I make it a case class again
+case class FileOffsetDateLineDocument(path: String, offset: Long, line: String)
+  extends ElasticsearchDocument //with Serializable
   {
 
 }

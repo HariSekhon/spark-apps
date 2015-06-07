@@ -12,10 +12,10 @@
 
 package HariSekhon.Spark
 
-@SerialVersionUID(102L)
-// only serializes in ESHadoop if I make it a case class again
-case class FileDateLineDocument (path: String, offset: Long, date: String, line: String)
-  extends ElasticsearchDocument
-    with Serializable {
+// Elasticsearch document
+//@SerialVersionUID(102L) // only serializes in ESHadoop if I make it a case class again
+case class FileDateLineDocument(path: String, offset: Long, line: String)
+  extends ElasticsearchDocument //with Serializable 
+  {
 
 }

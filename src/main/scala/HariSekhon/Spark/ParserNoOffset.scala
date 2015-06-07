@@ -23,32 +23,18 @@ import java.util.HashMap
 
 // Parser class to be called in TextToElasticsearch
 //@SerialVersionUID(100L)
-//object Parser extends ParserTrait with Serializable {
-object Parser extends ParserTrait {
+//object ParserNoOffset extends ParserTrait with Serializable {
+object ParserNoOffset extends ParserTrait {
+  
   // TODO: add DateLineParser logic here
   def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
-    val path2 = //if (path.isEmpty()) {
-      //  ""
-      //} else {
-      path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
-    //}
-    val date: String = null
-    val doc = new HashMap[String, String]();
-    doc.put("path", path)
-    if (offset > -1) {
-      doc.put("offset", offset.toString())
-    }
-    doc.put("line", line)
-    if (date != null) {
-      doc.put("date", date.toString())
-    }
-    doc
+    Parser.parse(path, -1L, line)
   }
   
-  // return a list of possible return objects to pass to Kryo registration for optimization
   def returns(){
-    List(FileOffsetLineDocument("path", 0L, "line"), FileOffsetDateLineDocument("path", 0L, "line"))
+    List(FileLineDocument("path", 0L, "line"),FileDateLineDocument("path", 0L, "line"))
   }
+  
 }
 
-class Parser {}
+class ParserNoOffset {}
