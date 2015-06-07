@@ -34,11 +34,8 @@ import java.io.{ PrintWriter, File }
 import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.TextInputFormat
-<<<<<<< HEAD
 import org.apache.commons.cli.OptionBuilder
-=======
 import java.util.HashMap
->>>>>>> custom-parsers
 // for Kryo serialization
 import java.lang.Long
 
@@ -233,21 +230,22 @@ object TextToElasticsearch {
     //val parserA = getTypeTag(parser).tpe
     //val m = ru.runtimeMirror(getClass.getClassLoader)
     //val classLoader = MainClass.class.getClassLoader();
-    val parserClass = Class.forName(parser)
     //val parserInstance = parserClass.newInstance().asInstanceOf[Class[parserClass.getName]]
     //val params = Array[Class] // classOf[String], classOf[Long], classOf[String]]
     //params[0] = classOf[String]
     //params[1] = classOf[Long]
     //params[2] = classOf[String]
     //val Parser = parserClass.getDeclaredMethod("parse", classOf[Parser])
-    println("Parser = " + parserClass.getName())
-    val classLoader = java.lang.ClassLoader.getSystemClassLoader()
+    //println("Parser = " + parserClass.getName())
     //val parserInstance = classLoader.loadClass(parserClass)
     //val parserInstance = Class.forName(parser).getConstructor().newInstance() // parser.newInstance()(l._1, l._2, l._3)
     //val params = Array[classOf[String], classOf[Long], classOf[String]]
     //val parse = cls.getDeclaredMethod("parse", params)
-    val parserInstance2 = Class.forName(parser).getConstructor().newInstance()
-    val parserInstance = parserInstance2.asInstanceOf(parserClass)
+    
+    //val parserClass = Class.forName(parser)
+    //val classLoader = java.lang.ClassLoader.getSystemClassLoader()
+    //val parserInstance2 = Class.forName(parser).getConstructor().newInstance()
+    //val parserInstance = parserInstance2.asInstanceOf(parserClass)
 
     //} catch {
     //  case e: ClassNotFoundException => e.printStackTrace();
@@ -265,7 +263,7 @@ object TextToElasticsearch {
       //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       //parserInstance.parse(_, _, _)
       //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
-      parse.invoke(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
     })
     es_map.saveToEs(index + "/" + es_type)
 
@@ -289,6 +287,7 @@ object TextToElasticsearch {
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
+    
     //}
 
   }

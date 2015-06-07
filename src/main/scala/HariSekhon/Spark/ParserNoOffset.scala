@@ -24,7 +24,7 @@ import java.util.HashMap
 // Parser class to be called in TextToElasticsearch
 //@SerialVersionUID(100L)
 //object ParserNoOffset extends ParserTrait with Serializable {
-object ParserNoOffset extends ParserTrait {
+object ParserNoOffset { //extends ParserTrait {
   
   // TODO: add DateLineParser logic here
   def parse(path: String, offset: Long, line: String): HashMap[String, String] = {

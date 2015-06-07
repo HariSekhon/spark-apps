@@ -170,6 +170,7 @@ object KafkaToElasticsearch {
     //val kafkaParams = Map("group.id" -> "KafkaToElasticsearch") 
     //val topics = Map("test" -> 1)
     //val kafkaStream = KafkaUtils.createStream(ssc, zk_list, kafkaParams, topics, StorageLevel.MEMORY_AND_DISK)
+    /*
     val kafkaParams = Map("metadata.broker.list" -> broker_list)
 
     // new Direct API
@@ -201,6 +202,7 @@ object KafkaToElasticsearch {
     lines.unpersist()
     ssc.start()
     ssc.awaitTermination()
+    */
   }
 
 }

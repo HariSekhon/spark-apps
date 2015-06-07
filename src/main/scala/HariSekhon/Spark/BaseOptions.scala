@@ -44,11 +44,13 @@ object BaseOptions {
     options.addOption(OptionBuilder.create("E"))
     
     //
+    /*
     OptionBuilder.withLongOpt("parser")
     OptionBuilder.withArgName("com.domain.MyParser")
     OptionBuilder.withDescription("Custom parser class to use. Need to use --jars to supply the jar to spark if using this")
     OptionBuilder.hasArg()
     options.addOption(OptionBuilder.create())
+    */
     
     //
     //OptionBuilder.withLongOpt("esDocClass")
