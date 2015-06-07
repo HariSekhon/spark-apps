@@ -1,15 +1,17 @@
-Spark => Elasticsearch [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
+Spark => Elasticsearch Indexer (Kafka streaming + Hadoop HDFS batch) [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
 ================================
 
-Generic Spark to Elasticsearch indexing application written in Scala.
+Generic Spark to Elasticsearch indexing application written in Scala to provide real-time Full-Text search on your Big Data.
 
-Provides 2 Applications:
+Provides 2 ready-to-run Applications:
 
-1. Spark Streaming from Kafka to Elasticsearch. This is [near] real-time.
+1. Spark Streaming from Kafka to Elasticsearch. This is [near] real-time indexing.
 
-2. Full-text search of Hadoop HDFS text/compressed files with file path and offset, or local files depending on the Spark setup and specified URI prefix. Still on the todo list is attempting date parsing from logs for creating a extra time range query-able field in Elasticsearch.
+2. Batch indexing of Hadoop HDFS text/compressed files with file path and offset, or even local files depending on the Spark setup and specified URI prefix since the file access method is abstracted behind a Hadoop InputFormat.
 
-This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent toolbox repo https://github.com/harisekhon/toolbox for those programs.
+This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent [Toolbox repo](https://github.com/harisekhon/toolbox) for those programs.
+
+Still on the todo list is adding varied date detection + parsing from which to create a time range query-able field in Elasticsearch.
 
 Hari Sekhon
 
