@@ -167,10 +167,12 @@ object TextToElasticsearch {
     conf.set("spark.speculation", "false")
     //conf.set("es.query", "?q=me*")
     val sc = new SparkContext(conf)
+    println("Created Spark Context on Spark version %s".format(sc.version))
     //val lines = sc.textFile(path).cache()
     // thought I was on to something with lines.name but this returns the file glob, not the individual file names so
     // must go lower level to Hadoop InputFormat to allow us to index the originating filename as textFile() doesn't allow for this
     sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
+    println("Reading in data from user supplied source: %s".format(path))
     val lines = sc.hadoopFile(path, classOf[TextInputFormat], classOf[LongWritable], classOf[Text], sc.defaultMinPartitions)
     val hadoopRdd = lines.asInstanceOf[HadoopRDD[LongWritable, Text]]
     val fileLines = hadoopRdd.mapPartitionsWithInputSplit { (inputSplit, iterator) =>
@@ -188,10 +190,11 @@ object TextToElasticsearch {
           (filepath.toString(), Long.valueOf(l._1.toString()).longValue(), l._2.toString())
         }
       }
-    }.cache()
+    } // .cache() might actually slow this down it's better to re-read than to serialize to disk
 
     val start: Long = System.currentTimeMillis
     // ====================================================
+    // XXX: TODO: instead of doing .count() can we use an accumulator here?
     var count: String = "uncounted"
     if (do_count) {
       println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
