@@ -34,7 +34,11 @@ import java.io.{ PrintWriter, File }
 import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.TextInputFormat
+<<<<<<< HEAD
 import org.apache.commons.cli.OptionBuilder
+=======
+import java.util.HashMap
+>>>>>>> custom-parsers
 // for Kryo serialization
 import java.lang.Long
 
@@ -70,7 +74,7 @@ object TextToElasticsearch {
     val parser: String = if (cmd.hasOption("parser")) {
       cmd.getOptionValue("parser")
     } else {
-      "Parser"
+      "HariSekhon.Spark.Parser"
     }
     // must know the doc type for Kryo efficient serialization
     // TODO: try to find a way to not have to specify this, eg. Kryo the ElasticsearchDocument trait instead
@@ -98,22 +102,12 @@ object TextToElasticsearch {
     }
     validate_nodeport_list(es_nodes)
 
+    // XXX: TODO: remove this after getting reflection working
     //if(es_doc != "FileLineDocument"){
     //  if(parser == "Parser"){
     //    usage("must specify custom --parser if using custom --esDocClass")
     //  }
     //}
-
-    /* this is what's been giving me java.lang.ClassNotFoundException: Parser
-    try {
-      //val classLoader = MainClass.class.getClassLoader();
-      val classLoader = java.lang.ClassLoader.getSystemClassLoader();
-      val parserClass = classLoader.loadClass(parser);
-      println("Parser = " + parserClass.getName());
-    } catch {
-      case e: ClassNotFoundException => e.printStackTrace();
-    }
-    */
 
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     // case classes for use with lower level Hadoop InputFormat - now moved to top level ElasticsearchDocuments
@@ -154,9 +148,19 @@ object TextToElasticsearch {
           //classOf[Class.forName(es_doc)]
           //classOf[ElasticsearchDocument],
           // this is not enough, as suspected must also register the inheriting document classes
-          classOf[Array[ElasticsearchDocument]],
+          //classOf[Array[ElasticsearchDocument]],
+          // TODO: XXX: this will break without the class return type being auto-determined and added here
+          // what about multiple possible class returns? Must use a list of classes to be returned?? Or return a Map instead so this isn't an issue?
           classOf[FileLineDocument],
-          classOf[FileDateLineDocument]))
+          classOf[FileDateLineDocument],
+          classOf[FileOffsetLineDocument],
+          classOf[FileOffsetDateLineDocument],
+          // using generic Java Hashmap instead of classes, it's easier to extend
+          classOf[HashMap[String, String]],
+          classOf[Array[HashMap[String, String]]],
+          classOf[HashMap[String, Long]],
+          classOf[Array[HashMap[String, Long]]]))
+          // XXX: TODO: should have to do any of this any more if getting reflection working and then using the returns() method and iterating over the list of possible return objects and then registering each one and Array[eachOne] 
     } else {
       println("not using Kryo serialization, defaulting to slower but safer Java serialization")
     }
@@ -219,6 +223,36 @@ object TextToElasticsearch {
       }
     })
     */
+    
+    // XXX: consider doing this in the new Scala Reflections API from 2.10 (marked experimental) to better support Scala types
+    // primary driver for this is to allow a client of mine to use custom Java parser classes
+    // this is what's been giving me java.lang.ClassNotFoundException: Parser
+    //try {
+    //import scala.reflect.runtime.{universe => ru}
+    //def getTypeTag[T: ru.TypeTag](obj: T) = ru.typeTag[T]
+    //val parserA = getTypeTag(parser).tpe
+    //val m = ru.runtimeMirror(getClass.getClassLoader)
+    //val classLoader = MainClass.class.getClassLoader();
+    val parserClass = Class.forName(parser)
+    //val parserInstance = parserClass.newInstance().asInstanceOf[Class[parserClass.getName]]
+    //val params = Array[Class] // classOf[String], classOf[Long], classOf[String]]
+    //params[0] = classOf[String]
+    //params[1] = classOf[Long]
+    //params[2] = classOf[String]
+    //val Parser = parserClass.getDeclaredMethod("parse", classOf[Parser])
+    println("Parser = " + parserClass.getName())
+    val classLoader = java.lang.ClassLoader.getSystemClassLoader()
+    //val parserInstance = classLoader.loadClass(parserClass)
+    //val parserInstance = Class.forName(parser).getConstructor().newInstance() // parser.newInstance()(l._1, l._2, l._3)
+    //val params = Array[classOf[String], classOf[Long], classOf[String]]
+    //val parse = cls.getDeclaredMethod("parse", params)
+    val parserInstance2 = Class.forName(parser).getConstructor().newInstance()
+    val parserInstance = parserInstance2.asInstanceOf(parserClass)
+
+    //} catch {
+    //  case e: ClassNotFoundException => e.printStackTrace();
+    //}
+    
     // case class to annotate fields for indexing in Elasticsearch
     //val es_map = lines.map(fileLine => {
     val es_map = fileLines.map(l => {
@@ -226,11 +260,12 @@ object TextToElasticsearch {
       // XXX: only use this for debugging at small scale on your laptop!
       //println("\n*** path: '%s', offset: '%s', line: '%s'\n".format(l._1, l._2, l._3))
       // converting earlier in the pipeline now to avoid Kryo serialization errors
-      //Class.forName(parser).getConstructor().newInstance().parser(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString()) // parser.newInstance()(l._1, l._2, l._3)
       // last minute conversions to prevent org.elasticsearch.hadoop.serialization.EsHadoopSerializationException, did earlier conversions in fileLines mapPartitionsWithInputSplit and changed case class instead
       //FileLine(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
-      HariSekhon.Spark.Parser.parse(l._1, l._2, l._3)
+      //parserInstance.parse(_, _, _)
+      //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      parse.invoke(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
     })
     es_map.saveToEs(index + "/" + es_type)
 
