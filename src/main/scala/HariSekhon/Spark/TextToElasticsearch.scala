@@ -263,6 +263,8 @@ object TextToElasticsearch {
       //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       //parserInstance.parse(_, _, _)
       //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      // this gets rg.elasticsearch.hadoop.serialization.EsHadoopSerializationException: Cannot handle type [class HariSekhon.Spark.TextToElasticsearch$$anonfun$2$$anonfun$apply$2], instance [<function3>] using writer [org.elasticsearch.spark.serialization.ScalaValueWriter@xxxxxxxx
+      //Parser.parse(_, _, _)
       Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
     })
     es_map.saveToEs(index + "/" + es_type)
@@ -272,7 +274,6 @@ object TextToElasticsearch {
     // the high level API would pull all data through RDD whereas I just want the hit count header on first page of 10 results
     // maybe handle this in calling script instead
     sc.stop()
-    // TODO: tie in with count above to be an optional switch
     val count_file = index.replaceAll("[^A-Za-z0-9_-]", "_")
     val secs = (System.currentTimeMillis - start) / 1000
     println("\n*** Finished indexing path '%s' (%s records) to Elasticsearch index '%s' (nodes: %s) in %d secs\n".format(path, count, index, es_nodes, secs))
@@ -283,7 +284,8 @@ object TextToElasticsearch {
       println("writing uncounted placeholder file for index '%s' to /tmp/%s.count\n".format(index, count_file))
     }
     // Still write the file for uniformity
-    // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
+    // raises FileNotFoundException at end of job when using globs for Spark's textFile() so using index name converted for filename safety instead
+    // this will overwrite the last file so it only keeps the last run but this is good enough for my purposes
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
