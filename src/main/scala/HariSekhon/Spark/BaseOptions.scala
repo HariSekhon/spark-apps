@@ -21,7 +21,7 @@ object BaseOptions {
     //options.addOption(OptionBuilder.create("c"))
     options.addOption("c", "count", false, "Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
     //
-    options.addOption("s", "safe-serialization", false, "Use safer Java serialization (slower). Only use this if you are getting ")
+    options.addOption("s", "safe-serialization", false, "Use safer Java serialization (slower). Only use this if you are getting Kryo serialization errors")
     //
     OptionBuilder.withLongOpt("index")
     OptionBuilder.withArgName("index")
