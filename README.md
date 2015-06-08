@@ -38,7 +38,7 @@ The given data path may be a directory, a file glob or comma separated list and 
 
 The order of the arguments is important here:
 
-##### Real-time Kafka Spark Streaming to Elasticsearch #####
+##### Real-time Kafka Spark Streaming => Elasticsearch #####
 
 ```
 spark-submit ... --class KafkaToElasticsearch \
@@ -49,7 +49,7 @@ spark-submit ... --class KafkaToElasticsearch \
                  --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
 ```
 
-##### Batch HDFS / local storage to Elasticsearch #####
+##### Batch HDFS / local storage => Elasticsearch #####
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
