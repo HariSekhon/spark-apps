@@ -92,7 +92,11 @@ object KafkaToElasticsearch {
       index
     }
     //val es_nodes = validate_nodeport_list(args(2))
-    val es_nodes: String = cmd.getOptionValue("E")
+    val es_nodes: String = if(cmd.hasOption("E")){
+      cmd.getOptionValue("E")
+    } else {
+      "localhost:9200"
+    }
     // TODO: in testing this makes little difference to performance, test this more at scale
     val do_count: Boolean = cmd.hasOption("c")
     val parser: String = if (cmd.hasOption("parser")) {

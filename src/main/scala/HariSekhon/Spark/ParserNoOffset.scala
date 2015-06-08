@@ -20,21 +20,22 @@ package HariSekhon.Spark
 
 import java.lang.Long
 import java.util.HashMap
+import java.util.ArrayList
 
 // Parser class to be called in TextToElasticsearch
-//@SerialVersionUID(100L)
-//object ParserNoOffset extends ParserTrait with Serializable {
-object ParserNoOffset { //extends ParserTrait {
+@SerialVersionUID(101L)
+class ParserNoOffset extends Parser {
   
   // TODO: add DateLineParser logic here
-  def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
-    Parser.parse(path, -1L, line)
-  }
+  //def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
+  //  Parser.parse(path, -1L, line)
+  //}
   
-  def returns(){
-    List(FileLineDocument("path", 0L, "line"),FileDateLineDocument("path", 0L, "line"))
+  override def returns(): ArrayList[AnyRef] = {
+    val a = new ArrayList[AnyRef]()
+    a.add(FileLineDocument("path", 0L, "line"))
+    a.add(FileDateLineDocument("path", 0L, "line"))
+    a
   }
   
 }
-
-class ParserNoOffset {}

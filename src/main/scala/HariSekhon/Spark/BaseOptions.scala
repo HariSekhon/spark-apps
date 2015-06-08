@@ -38,7 +38,7 @@ object BaseOptions {
     //
     OptionBuilder.withLongOpt("es-nodes")
     OptionBuilder.withArgName("nodes")
-    OptionBuilder.withDescription("Elasticsearch node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
+    OptionBuilder.withDescription("Elasticsearch node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,..., defaults to \"localhost:9200\"). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
     OptionBuilder.hasArg()
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("E"))

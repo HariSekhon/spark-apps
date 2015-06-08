@@ -2,8 +2,9 @@ package HariSekhon.Spark
 
 import java.lang.Long
 import java.util.HashMap
+import java.util.ArrayList
 
-trait ParserTrait {
+abstract class AbstractParser extends Serializable {
   def parse(path: String, offset: Long, line: String): HashMap[String, String]
-  def returns(): List[Any]
+  def returns(): ArrayList[AnyRef]
 }

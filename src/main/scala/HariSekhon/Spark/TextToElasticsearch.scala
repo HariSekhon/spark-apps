@@ -58,6 +58,7 @@ object TextToElasticsearch {
     val cmd = get_options(args)
 
     val path: String = cmd.getOptionValue("p")
+    // TODO: make these shared options get parsed with shared code between TextToElasticsearch and KafkaToElasticsearch
     val index: String = cmd.getOptionValue("i")
     val es_type: String = if (cmd.hasOption("y")) {
       cmd.getOptionValue("y")
@@ -65,7 +66,11 @@ object TextToElasticsearch {
       index
     }
     //val es_nodes = validate_nodeport_list(args(2))
-    val es_nodes: String = cmd.getOptionValue("E")
+    val es_nodes: String = if(cmd.hasOption("E")){
+      cmd.getOptionValue("E")
+    } else {
+      "localhost:9200"
+    }
     // TODO: in testing this makes little difference to performance, test this more at scale
     val do_count: Boolean = cmd.hasOption("c")
     val parser: String = if (cmd.hasOption("parser")) {
@@ -148,6 +153,9 @@ object TextToElasticsearch {
           //classOf[Array[ElasticsearchDocument]],
           // TODO: XXX: this will break without the class return type being auto-determined and added here
           // what about multiple possible class returns? Must use a list of classes to be returned?? Or return a Map instead so this isn't an issue?
+          classOf[Parser],
+          //classOf[ParserNoOffset],
+          classOf[SampleJavaParser],
           classOf[FileLineDocument],
           classOf[FileDateLineDocument],
           classOf[FileOffsetLineDocument],
@@ -251,6 +259,14 @@ object TextToElasticsearch {
     //  case e: ClassNotFoundException => e.printStackTrace();
     //}
     
+    //val parserInstance = new Parser()
+    val parserInstance = new SampleJavaParser()
+    //val acc = sc.accumulator(0)
+    // partially applied function causes Kryo serialization error:
+    // java.lang.IllegalArgumentException: Class is not registered: HariSekhon.Spark.TextToElasticsearch$$anonfun$2
+    // Note: To register this class use: kryo.register(HariSekhon.Spark.TextToElasticsearch$$anonfun$2.class);
+    //val broadcast = sc.broadcast(parserInstance.parse _)
+    val broadcast = sc.broadcast(parserInstance)
     // case class to annotate fields for indexing in Elasticsearch
     //val es_map = lines.map(fileLine => {
     val es_map = fileLines.map(l => {
@@ -265,9 +281,12 @@ object TextToElasticsearch {
       //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       // this gets rg.elasticsearch.hadoop.serialization.EsHadoopSerializationException: Cannot handle type [class HariSekhon.Spark.TextToElasticsearch$$anonfun$2$$anonfun$apply$2], instance [<function3>] using writer [org.elasticsearch.spark.serialization.ScalaValueWriter@xxxxxxxx
       //Parser.parse(_, _, _)
-      Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      // this is not guaranteed to be accurate in Transformations and in fact in testing it isn't
+      //acc += 1
+      broadcast.value.parse(l._1.toString(), Long.valueOf(l._2.toString()), l._3.toString())
     })
     es_map.saveToEs(index + "/" + es_type)
+    //println("accumulator counted %d records".format(acc.value))
 
     lines.unpersist()
     // TODO: do elasticsearch query vs count reporting here

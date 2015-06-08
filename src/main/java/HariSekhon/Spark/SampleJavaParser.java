@@ -15,13 +15,16 @@
 
 package HariSekhon.Spark;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SampleJavaParser {
+public class SampleJavaParser implements Serializable {
 
-	public static HashMap<String, String> parse(String path, Long offset, String line) {
+	private static final long serialVersionUID = 102L;
+	
+	public HashMap<String, String> parse(String path, Long offset, String line) {
 	
 		path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "");
 		String date = null;
@@ -39,7 +42,7 @@ public class SampleJavaParser {
 	}
 		  
 	// return a list of possible return objects to pass to Kryo registration for optimization
-	public static ArrayList<Object> returns() {
+	public ArrayList<Object> returns() {
 		ArrayList<Object> a = new ArrayList<Object>();
 		a.add(new FileOffsetLineDocument("path", 0L, "line"));
 		a.add(new FileOffsetDateLineDocument("path", 0L, "line"));

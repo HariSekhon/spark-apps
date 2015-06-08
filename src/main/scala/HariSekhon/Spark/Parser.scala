@@ -20,11 +20,11 @@ package HariSekhon.Spark
 
 import java.lang.Long
 import java.util.HashMap
+import java.util.ArrayList
 
 // Parser class to be called in TextToElasticsearch
-//@SerialVersionUID(100L)
-//object Parser extends ParserTrait with Serializable {
-object Parser { //extends ParserTrait {
+@SerialVersionUID(100L)
+class Parser extends AbstractParser {
   // TODO: add DateLineParser logic here
   def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
     val path2 = //if (path.isEmpty()) {
@@ -46,7 +46,10 @@ object Parser { //extends ParserTrait {
   }
   
   // return a list of possible return objects to pass to Kryo registration for optimization
-  def returns() {
-    List(FileOffsetLineDocument("path", 0L, "line"), FileOffsetDateLineDocument("path", 0L, "line"))
+  def returns(): ArrayList[AnyRef] = {
+    val a = new ArrayList[AnyRef]();
+    a.add(FileOffsetLineDocument("path", 0L, "line"))
+    a.add(FileOffsetDateLineDocument("path", 0L, "line"))
+    a
   }
 }
