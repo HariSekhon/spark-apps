@@ -18,6 +18,7 @@ srcdir="$(dirname $0)"
 
 cd "$srcdir/.."
 
+echo "creating sample data"
 mkdir -p elasticsearch-data
 cat > elasticsearch-data/file1 <<EOF
 one
@@ -30,21 +31,36 @@ four
 five
 six
 EOF
+echo
 
 SPARK_VERSION=1.4.0
 BIN="bin-hadoop2.6"
+SPARK="spark-$SPARK_VERSION-$BIN"
+TAR="$SPARK.tgz"
 
-[ -e "spark-$SPARK_VERSION-$BIN.tgz" ] ||
-wget "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-$BIN.tgz"
+ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
+ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
+INDEX="spark-to-elasticsearch-test"
 
-[ -d "spark-$SPARK_VERSION-$BIN" ] ||
-tar zxvf "spark-$SPARK_VERSION-$BIN.tgz"
+curl -XDELETE "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX"
+echo
 
-"spark-$SPARK_VERSION-$BIN/bin/spark-submit" --master local[2] \
-                                            --class HariSekhon.Spark.TextToElasticsearch \
-                                            target/scala-*/spark-to-elasticsearch-assembly-*.jar \
-                                            --path 'elasticsearch-data' \
-                                            --index 'testindex' --type 'testtype' \
-                                            --es-nodes localhost:9200
+if ! [ -e "$TAR" ]; then
+    echo "fetching Spark tarball '$TAR'"
+    wget "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR"
+fi
 
-curl 'localhost:9200/testindex/_search?q=path:file2&pretty' | tee /dev/stderr | grep -q six
+if ! [ -d "$SPARK" ]; then
+    echo "unpacking Spark"
+    tar zxf "$TAR"
+fi
+
+"$SPARK/bin/spark-submit" --master local[2] \
+                          --class HariSekhon.Spark.TextToElasticsearch \
+                          target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                          --path 'elasticsearch-data' \
+                          --index "$INDEX" --type 'testtype' \
+                          --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
+
+curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" | tee /dev/stderr | grep -q '"total" : 6,' && echo -e "\n\nFound 6 Elasticsearch documents indexed as expected"
+curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" | grep -q '"_source":{"path":"file:.*/elasticsearch-data/dir2/file2","line":"six","offset":"10"}' && echo -e "\nFound document 'six'"
