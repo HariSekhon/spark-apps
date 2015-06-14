@@ -14,13 +14,13 @@
 #
 
 set -euo pipefail
-srcdir="$(dirname $0)"
+srcdir="$(cd $(dirname $0) && pwd)"
 
 cd "$srcdir"
 
 SAMPLE_DATA="$srcdir/elasticsearch-data"
 
-echo "creating sample data"
+echo "creating sample data at '$SAMPLE_DATA'"
 mkdir -p "$SAMPLE_DATA"
 cat > "$SAMPLE_DATA/file1" <<EOF
 one
