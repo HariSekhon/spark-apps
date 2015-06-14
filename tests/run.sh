@@ -79,7 +79,7 @@ echo
 
 echo "Checking we can find document 6 indexed as expected"
 curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
-    grep -q '"_source":{"path":"file:.*/elasticsearch-data/dir2/file2","line":"six","offset":"10"}' &&
+    grep -q '"_source":{"path":".*/elasticsearch-data/dir2/file2","offset":10,"line":"six"}' &&
         echo "Found document 'six' with path and offset" ||
         { echo "Failed to find document 'six' contents with path and offset"; exit 1; }
 echo
