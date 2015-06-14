@@ -154,17 +154,23 @@ object TextToElasticsearch {
           // TODO: XXX: this will break without the class return type being auto-determined and added here
           // what about multiple possible class returns? Must use a list of classes to be returned?? Or return a Map instead so this isn't an issue?
           classOf[Parser],
-          //classOf[ParserNoOffset],
+          // doesn't work for inherited classes, still need to list ParserNoOffset here
+          //classOf[AbstractParser],
+          classOf[ParserNoOffset],
           classOf[SampleJavaParser],
           classOf[FileLineDocument],
           classOf[FileDateLineDocument],
           classOf[FileOffsetLineDocument],
           classOf[FileOffsetDateLineDocument],
+          // needed only for SampleJavaParser for Kryo
+          classOf[Array[FileOffsetLineDocument]],
           // using generic Java Hashmap instead of classes, it's easier to extend
           classOf[HashMap[String, String]],
           classOf[Array[HashMap[String, String]]],
           classOf[HashMap[String, Long]],
-          classOf[Array[HashMap[String, Long]]]))
+          classOf[Array[HashMap[String, Long]]],
+          classOf[AnyRef],
+          classOf[Array[AnyRef]]))
           // XXX: TODO: should have to do any of this any more if getting reflection working and then using the returns() method and iterating over the list of possible return objects and then registering each one and Array[eachOne] 
     } else {
       println("not using Kryo serialization, defaulting to slower but safer Java serialization")
@@ -259,8 +265,9 @@ object TextToElasticsearch {
     //  case e: ClassNotFoundException => e.printStackTrace();
     //}
     
-    //val parserInstance = new Parser()
-    val parserInstance = new SampleJavaParser()
+    val parserInstance = new Parser()
+    //val parserInstance = new ParserNoOffset()
+    //val parserInstance = new SampleJavaParser()
     //val acc = sc.accumulator(0)
     // partially applied function causes Kryo serialization error:
     // java.lang.IllegalArgumentException: Class is not registered: HariSekhon.Spark.TextToElasticsearch$$anonfun$2

@@ -26,16 +26,30 @@ import java.util.ArrayList
 @SerialVersionUID(101L)
 class ParserNoOffset extends Parser {
   
-  // TODO: add DateLineParser logic here
-  //def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
-  //  Parser.parse(path, -1L, line)
-  //}
+  override def parse(path: String, offset: Long, line: String): AnyRef = {
+    val path_stripped = strip_file_scheme(path)
+    val date: String = null
+    /*
+    val doc = new HashMap[String, String]();
+    doc.put("path", path_stripped)
+    doc.put("line", line)
+    if (date != null) {
+      doc.put("date", date.toString())
+    }
+    doc
+    */
+    FileLineDocument(path_stripped, line)
+  }
   
-  override def returns(): ArrayList[AnyRef] = {
+  override def returns(): AnyRef = {
+    /*
     val a = new ArrayList[AnyRef]()
+    
     a.add(FileLineDocument("path", 0L, "line"))
     a.add(FileDateLineDocument("path", 0L, "line"))
     a
+    */
+    FileLineDocument("path", "line")
   }
   
 }

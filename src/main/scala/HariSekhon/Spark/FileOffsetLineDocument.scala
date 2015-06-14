@@ -11,6 +11,9 @@
 
 package HariSekhon.Spark
 
+import java.lang.Long
+import org.apache.commons.lang3.builder.ToStringBuilder
+
 // Elasticsearch document
 //@SerialVersionUID(101L)
 // only serializes in ESHadoop if I make it a case class again
@@ -19,4 +22,10 @@ case class FileOffsetLineDocument (path: String, offset: Long, line: String)
     //with Serializable
   {
 
+  /*
+  override def toString(): String = {
+   return ToStringBuilder.reflectionToString(this)
+  }
+  */
+  
 }

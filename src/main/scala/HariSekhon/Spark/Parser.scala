@@ -25,16 +25,15 @@ import java.util.ArrayList
 // Parser class to be called in TextToElasticsearch
 @SerialVersionUID(100L)
 class Parser extends AbstractParser {
-  // TODO: add DateLineParser logic here
-  def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
-    val path2 = //if (path.isEmpty()) {
-      //  ""
-      //} else {
-      path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
-    //}
+  //def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
+	def parse(path: String, offset: Long, line: String): AnyRef = { // using AnyRef to allow overriding in ParserNoOffset
+    val path_stripped = strip_file_scheme(path)
+    // TODO: add DateLineParser logic here
     val date: String = null
-    val doc = new HashMap[String, String]();
-    doc.put("path", path)
+    val doc = new HashMap[String, String]()
+    /*
+    doc.put("path", path_stripped)
+    
     if (offset > -1) {
       doc.put("offset", offset.toString())
     }
@@ -43,13 +42,27 @@ class Parser extends AbstractParser {
       doc.put("date", date.toString())
     }
     doc
+    */
+    new FileOffsetLineDocument(path_stripped, offset, line)
   }
-  
+
+  def strip_file_scheme(path: String) = {
+    val path2 = //if (path.isEmpty()) {
+      //  ""
+      //} else {
+      path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
+    //}
+    path2
+  }
+
   // return a list of possible return objects to pass to Kryo registration for optimization
-  def returns(): ArrayList[AnyRef] = {
+  def returns(): AnyRef = {
+    /*
     val a = new ArrayList[AnyRef]();
     a.add(FileOffsetLineDocument("path", 0L, "line"))
     a.add(FileOffsetDateLineDocument("path", 0L, "line"))
     a
+    */
+    FileOffsetLineDocument("path", 0L, "line")
   }
 }

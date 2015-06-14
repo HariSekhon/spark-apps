@@ -16,19 +16,20 @@
 package HariSekhon.Spark;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.ArrayList;
+//import java.util.HashMap;
 
 public class SampleJavaParser extends AbstractParser implements Serializable {
 
 	private static final long serialVersionUID = 102L;
 	
-	public HashMap<String, String> parse(String path, Long offset, String line) {
+	public FileOffsetLineDocument parse(String path, Long offset, String line) {
 	
-		path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "");
+		String path_stripped = path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "");
+		/*
 		String date = null;
 		HashMap<String, String> doc = new HashMap<String, String>();
-		doc.put("path", path);
+		doc.put("path", path_stripped);
 		if (offset > -1) {
 		  doc.put("offset", offset.toString());
 		}
@@ -38,14 +39,19 @@ public class SampleJavaParser extends AbstractParser implements Serializable {
 		  doc.put("date", date.toString());
 		}
 		return doc;
+		*/
+		return new FileOffsetLineDocument(path_stripped, offset, line);
 	}
 		  
 	// return a list of possible return objects to pass to Kryo registration for optimization
-	public ArrayList<Object> returns() {
+	public FileOffsetLineDocument returns() {
+		/*
 		ArrayList<Object> a = new ArrayList<Object>();
 		a.add(new FileOffsetLineDocument("path", 0L, "line"));
 		a.add(new FileOffsetDateLineDocument("path", 0L, "line"));
 		return a;
+		*/
+		return new FileOffsetLineDocument("path", 0L, "line");
 	}
 
 }
