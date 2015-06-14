@@ -16,17 +16,19 @@
 set -euo pipefail
 srcdir="$(dirname $0)"
 
-cd "$srcdir/.."
+cd "$srcdir"
+
+SAMPLE_DATA="$srcdir/elasticsearch-data"
 
 echo "creating sample data"
-mkdir -p elasticsearch-data
-cat > elasticsearch-data/file1 <<EOF
+mkdir -p "$SAMPLE_DATA"
+cat > "$SAMPLE_DATA/file1" <<EOF
 one
 two
 three
 EOF
-mkdir -p elasticsearch-data/dir2
-cat > elasticsearch-data/dir2/file2 <<EOF
+mkdir -p "$SAMPLE_DATA/dir2"
+cat > "$SAMPLE_DATA/dir2/file2" <<EOF
 four
 five
 six
@@ -59,11 +61,12 @@ if ! [ -d "$SPARK" ]; then
     echo
 fi
 
+cd ..
 echo "running Spark job to index sample data files to Elasticsearch"
-"$SPARK/bin/spark-submit" --master local[2] \
+"$srcdir/$SPARK/bin/spark-submit" --master local[2] \
                           --class HariSekhon.Spark.TextToElasticsearch \
                           target/scala-*/spark-to-elasticsearch-assembly-*.jar \
-                          --path 'elasticsearch-data' \
+                          --path "$SAMPLE_DATA" \
                           --index "$INDEX" --type 'testtype' \
                           --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
 echo
