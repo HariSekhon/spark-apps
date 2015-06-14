@@ -75,6 +75,10 @@ make update
 ```
 This will not only git pull but also fetch the correct version of the library submodule to match and then run a clean make to rebuild all dependencies for the library submodule followed by the Spark application.
 
+### Testing ###
+
+Continuous Integration is run with a sample test run found under ```tests/run.sh``` which indexes some sample data and then retrieves it from Elasticsearch to verify that everything is working end-to-end.
+
 ### Contributions ###
 
 Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
