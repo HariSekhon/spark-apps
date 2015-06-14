@@ -62,5 +62,12 @@ fi
                           --index "$INDEX" --type 'testtype' \
                           --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
 
-curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" | tee /dev/stderr | grep -q '"total" : 6,' && echo -e "\n\nFound 6 Elasticsearch documents indexed as expected"
-curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" | grep -q '"_source":{"path":"file:.*/elasticsearch-data/dir2/file2","line":"six","offset":"10"}' && echo -e "\nFound document 'six'"
+curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
+    tee /dev/stderr |
+        grep -q '"total" : 6,' &&
+            echo -e "\n\nFound 6 Elasticsearch documents indexed as expected" ||
+            { echo -e "\n\nDidn't find 6 Elasticsearch documents as expected"; exit 1; }
+curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
+    grep -q '"_source":{"path":"file:.*/elasticsearch-data/dir2/file2","line":"six","offset":"10"}' &&
+        echo -e "\nFound document 'six'" ||
+        { echo -e "\nFailed to find document 'six'"; exit 1; }
