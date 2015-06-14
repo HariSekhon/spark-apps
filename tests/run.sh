@@ -42,32 +42,43 @@ ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
 ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 INDEX="spark-to-elasticsearch-test"
 
+echo "deleting existing index '$INDEX' if it exists"
 curl -XDELETE "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX"
+echo
 echo
 
 if ! [ -e "$TAR" ]; then
     echo "fetching Spark tarball '$TAR'"
     wget "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR"
+    echo
 fi
 
 if ! [ -d "$SPARK" ]; then
     echo "unpacking Spark"
     tar zxf "$TAR"
+    echo
 fi
 
+echo "running Spark job to index sample data files to Elasticsearch"
 "$SPARK/bin/spark-submit" --master local[2] \
                           --class HariSekhon.Spark.TextToElasticsearch \
                           target/scala-*/spark-to-elasticsearch-assembly-*.jar \
                           --path 'elasticsearch-data' \
                           --index "$INDEX" --type 'testtype' \
                           --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
+echo
+echo
 
+echo "Checking 6 documents were indexed to Elasticsearch"
 curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
     tee /dev/stderr |
         grep -q '"total" : 6,' &&
-            echo -e "\n\nFound 6 Elasticsearch documents indexed as expected" ||
-            { echo -e "\n\nDidn't find 6 Elasticsearch documents as expected"; exit 1; }
+            echo -e "\nFound 6 Elasticsearch documents indexed as expected" ||
+            { echo -e "\nDidn't find 6 Elasticsearch documents as expected"; exit 1; }
+echo
+
+echo "Checking we can find document 6 indexed as expected"
 curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
     grep -q '"_source":{"path":"file:.*/elasticsearch-data/dir2/file2","line":"six","offset":"10"}' &&
-        echo -e "\nFound document 'six'" ||
-        { echo -e "\nFailed to find document 'six'"; exit 1; }
+        echo "Found document 'six'" ||
+        { echo "Failed to find document 'six'"; exit 1; }
