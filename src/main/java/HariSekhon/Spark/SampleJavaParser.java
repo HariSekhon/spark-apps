@@ -18,9 +18,8 @@ package HariSekhon.Spark;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class SampleJavaParser implements Serializable {
+public class SampleJavaParser extends AbstractParser implements Serializable {
 
 	private static final long serialVersionUID = 102L;
 	
