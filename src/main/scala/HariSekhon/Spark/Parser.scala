@@ -46,11 +46,12 @@ class Parser extends AbstractParser {
     new FileOffsetLineDocument(path_stripped, offset, line)
   }
 
+  // TODO: move this to utils lib
   def strip_file_scheme(path: String) = {
     val path2 = //if (path.isEmpty()) {
       //  ""
       //} else {
-      path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
+      path.replaceFirst("^file://", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
     //}
     path2
   }

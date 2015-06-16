@@ -37,5 +37,7 @@ libraryDependencies ++= Seq (
     // Spark has it's own older version of commons-cli and using the newer 1.3 API methods causes:
     // Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
     //"commons-cli" % "commons-cli" % "1.3"
-    "commons-cli" % "commons-cli" % "1.2"
+    "commons-cli" % "commons-cli" % "1.2",
+    //"org.scalatest" % "scalatest_2.10" % "2.2.4" % "test",
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
