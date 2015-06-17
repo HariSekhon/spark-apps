@@ -2,13 +2,13 @@ Spark => Elasticsearch Indexer (Kafka streaming + Hadoop HDFS batch) [![Build St
 ================================
 
 Generic Spark to Elasticsearch indexing application written in Scala to provide real-time Full-Text search on your Big Data.
-
+<!--
 Provides 2 ready-to-run Applications:
 
 1. Spark Streaming from Kafka to Elasticsearch. This is [near] real-time indexing.
 
 2. Batch indexing of Hadoop HDFS text/compressed files with file path and offset, or even local files depending on the Spark setup and specified URI prefix since the file access method is abstracted behind a Hadoop InputFormat.
-
+-->
 This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent [Toolbox repo](https://github.com/harisekhon/toolbox) for those programs.
 
 Still on the todo list is adding varied date detection + parsing from which to create a time range query-able field in Elasticsearch.
@@ -37,7 +37,7 @@ After this finishes you can find the Spark application jar under target/scala-*/
 The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop has native support such as .gz / .bz2. Also supports directory recursion.
 
 The order of the arguments is important here:
-
+<!--
 ##### Real-time Kafka Spark Streaming => Elasticsearch #####
 
 ```
@@ -60,7 +60,7 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
                  --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
 ```
-
+-->
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ### Advanced - Custom Parsers ###
@@ -77,7 +77,7 @@ This will not only git pull but also fetch the correct version of the library su
 
 ### Testing ###
 
-Continuous Integration is run with a sample test run found under ```tests/run.sh``` which indexes some sample data and then retrieves it from Elasticsearch to verify that everything is working end-to-end.
+Continuous Integration is run with ScalaTest and a sample test run found under ```tests/run.sh``` which indexes some sample data and then retrieves it from Elasticsearch to verify that everything is working end-to-end.
 
 ### Contributions ###
 
@@ -85,14 +85,8 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-My Toolbox repo adjacent to this one which contains the original Pig & Hive programs among other goodies related to Hadoop, NoSQL, Solr, Elasticsearch, Linux CLI tools etc:
+[My Toolbox repo](https://github.com/harisekhon/toolbox) adjacent to this one which contains the original Pig & Hive programs among other goodies related to Hadoop, NoSQL, Solr, Elasticsearch, Linux CLI tools etc:
 
-https://github.com/harisekhon/toolbox
+[The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) for monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc:
 
-The Advanced Nagios Plugins Collection for monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc:
-
-https://github.com/harisekhon/nagios-plugins
-
-My Java utility library that this code uses:
-
-https://github.com/harisekhon/lib-java
+[My Java utility library](https://github.com/harisekhon/lib-java) that this code uses:
