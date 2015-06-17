@@ -52,7 +52,7 @@ class Parser extends AbstractParser {
     val path2 = //if (path.isEmpty()) {
       //  ""
       //} else {
-      path.replaceFirst("^file://", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
+      path.replaceFirst("^file:(?://)?/", "/").replaceFirst("^hdfs:\\/\\/(?:[\\w.-]+(?::\\d+)?)?/", "/")
     //}
     path2
   }
