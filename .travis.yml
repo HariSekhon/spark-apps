@@ -10,7 +10,15 @@ scala:
   # no dep available for org.elasticsearch#elasticsearch-spark_2.9.3;2.1.0.Beta4
   #- 2.9.3
   - 2.10.4
-  - 2.11.2
+  # "Scala 2.11 support in Spark does not support a few features due to dependencies which are themselves not Scala 2.11 ready. Specifically, Spark's external Kafka library and JDBC component are not yet supported in Scala 2.11 builds."
+  # See https://spark.apache.org/docs/latest/building-spark.html for updates on this
+  #- 2.11.2
 # This will follow make to ensure that we have built the Java submodule library required as an SBT unmanaged dep
 before_install:
   - make
+
+script:
+  - tests/run.sh
+
+services:
+  - elasticsearch

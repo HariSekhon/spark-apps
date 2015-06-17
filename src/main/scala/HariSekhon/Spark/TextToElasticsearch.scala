@@ -23,7 +23,6 @@ package HariSekhon.Spark
 
 import HariSekhon.Utils._
 import org.elasticsearch.spark._
-import org.apache.commons.cli.OptionBuilder
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
@@ -35,6 +34,8 @@ import java.io.{ PrintWriter, File }
 import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.TextInputFormat
+import org.apache.commons.cli.OptionBuilder
+import java.util.HashMap
 // for Kryo serialization
 import java.lang.Long
 
@@ -45,66 +46,19 @@ object TextToElasticsearch {
     // set index.refresh_interval = -1 on the index and then set back at end of job
     // actually do this in the the shell/perl script outside of code to give flexibility as ppl may not want this
 
-    // must use older commons-cli API to not conflict with Spark's embedded commons-cli
-    // urgh this would work in Java but not in Scala since due to static class 
-    //options.addOption(OptionBuilder.withLongOpt("index").withArgName("index").withDescription("Elasticsearch index and type in the format index/type").create("i"))
-    //options.addOption(OptionBuilder.withLongOpt("path").withArgName("dir").withDescription("HDFS / File / Directory path to recurse and index to Elasticsearch").create("p"))
-    //options.addOption(OptionBuilder.withLongOpt("es-nodes").withArgName("nodes").withDescription("Elasticsearch node list, comma separated (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver using a direct connection and doesn't yet use a native cluster join as it does in the regular Java API").create("E"))
-    //options.addOption(OptionBuilder.withLongOpt("count").withDescription("Generate a total count of the lines to index, for both reporting during the index job as well as writing it to '/tmp/<index_name>.count' to later comparison. This causes an extra job and shuffle and should be avoided for high volume or when you need to get things done quicker").create("c"))
-    //
-    // XXX: Apache Commons CLI is awful - consider replacing later
-    //
-    // this way doesn't print the description: 
-    //OptionBuilder.withLongOpt("count")
-    //OptionBuilder.withDescription("Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
-    //options.addOption(OptionBuilder.create("c"))
-    options.addOption("c", "count", false, "Generate a total count of the lines to index before sending to Elasticsearch, for both reporting how much there is to do before starting indexing as well as writing it to '/tmp/<index_name>.count' at the end for later comparison. This causes an extra Spark job and network shuffle and will slow you down")
-    //
-    options.addOption("s", "safe-serialization", false, "Use safer Java serialization (slower). Only use this if you are getting ")
-    //
+    BaseOptions
+    
     OptionBuilder.withLongOpt("path")
     OptionBuilder.withArgName("dir|file|glob")
     OptionBuilder.withDescription("HDFS / File / Directory path / glob to recurse and index to Elasticsearch")
     OptionBuilder.hasArg()
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("p"))
-    //
-    OptionBuilder.withLongOpt("index")
-    OptionBuilder.withArgName("index")
-    OptionBuilder.withDescription("Elasticsearch index to send data to")
-    OptionBuilder.hasArg()
-    OptionBuilder.isRequired()
-    options.addOption(OptionBuilder.create("i"))
-    //
-    OptionBuilder.withLongOpt("type")
-    OptionBuilder.withArgName("type")
-    OptionBuilder.withDescription("Elasticsearch type (defaults to the same name as --index)")
-    OptionBuilder.hasArg()
-    options.addOption(OptionBuilder.create("y"))
-    //
-    OptionBuilder.withLongOpt("es-nodes")
-    OptionBuilder.withArgName("nodes")
-    OptionBuilder.withDescription("Elasticsearch node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,...). Required, should list all nodes for balancing load since the Elastic spark driver uses a direct connection and doesn't yet have native cluster join support as it does in the regular Elasticsearch Java API")
-    OptionBuilder.hasArg()
-    OptionBuilder.isRequired()
-    options.addOption(OptionBuilder.create("E"))
-    //
-    OptionBuilder.withLongOpt("parser")
-    OptionBuilder.withArgName("com.domain.MyParser")
-    OptionBuilder.withDescription("Custom parser class to use. Need to use --jars to supply the jar to spark if using this")
-    OptionBuilder.hasArg()
-    options.addOption(OptionBuilder.create())
-    //
-    //OptionBuilder.withLongOpt("esDocClass")
-    //OptionBuilder.withArgName("com.domain.ESDocumentClass")
-    //OptionBuilder.withDescription("Custom Elasticsearch document class for custom --parser to return, should be supplied using --jars as with --parser. Requires --parser")
-    //OptionBuilder.hasArg()
-    //options.addOption(OptionBuilder.create())
 
     val cmd = get_options(args)
 
     val path: String = cmd.getOptionValue("p")
-    //val index = validate_elasticsearch_index(args(1))
+    // TODO: make these shared options get parsed with shared code between TextToElasticsearch and KafkaToElasticsearch
     val index: String = cmd.getOptionValue("i")
     val es_type: String = if (cmd.hasOption("y")) {
       cmd.getOptionValue("y")
@@ -112,13 +66,17 @@ object TextToElasticsearch {
       index
     }
     //val es_nodes = validate_nodeport_list(args(2))
-    val es_nodes: String = cmd.getOptionValue("E")
-    // // in testing this makes no difference to the performance
+    val es_nodes: String = if(cmd.hasOption("E")){
+      cmd.getOptionValue("E")
+    } else {
+      "localhost:9200"
+    }
+    // TODO: in testing this makes little difference to performance, test this more at scale
     val do_count: Boolean = cmd.hasOption("c")
     val parser: String = if (cmd.hasOption("parser")) {
       cmd.getOptionValue("parser")
     } else {
-      "Parser"
+      "HariSekhon.Spark.Parser"
     }
     // must know the doc type for Kryo efficient serialization
     // TODO: try to find a way to not have to specify this, eg. Kryo the ElasticsearchDocument trait instead
@@ -146,22 +104,12 @@ object TextToElasticsearch {
     }
     validate_nodeport_list(es_nodes)
 
+    // XXX: TODO: remove this after getting reflection working
     //if(es_doc != "FileLineDocument"){
     //  if(parser == "Parser"){
     //    usage("must specify custom --parser if using custom --esDocClass")
     //  }
     //}
-
-    /* this is what's been giving me java.lang.ClassNotFoundException: Parser
-    try {
-      //val classLoader = MainClass.class.getClassLoader();
-      val classLoader = java.lang.ClassLoader.getSystemClassLoader();
-      val parserClass = classLoader.loadClass(parser);
-      println("Parser = " + parserClass.getName());
-    } catch {
-      case e: ClassNotFoundException => e.printStackTrace();
-    }
-    */
 
     // by default you will get tuple position field names coming out in Elasticsearch (eg. _1: line, _2: content), so use case classes
     // case classes for use with lower level Hadoop InputFormat - now moved to top level ElasticsearchDocuments
@@ -202,9 +150,28 @@ object TextToElasticsearch {
           //classOf[Class.forName(es_doc)]
           //classOf[ElasticsearchDocument],
           // this is not enough, as suspected must also register the inheriting document classes
-          classOf[Array[ElasticsearchDocument]],
+          //classOf[Array[ElasticsearchDocument]],
+          // TODO: XXX: this will break without the class return type being auto-determined and added here
+          // what about multiple possible class returns? Must use a list of classes to be returned?? Or return a Map instead so this isn't an issue?
+          classOf[Parser],
+          // doesn't work for inherited classes, still need to list ParserNoOffset here
+          //classOf[AbstractParser],
+          classOf[ParserNoOffset],
+          classOf[SampleJavaParser],
           classOf[FileLineDocument],
-          classOf[FileDateLineDocument]))
+          classOf[FileDateLineDocument],
+          classOf[FileOffsetLineDocument],
+          //classOf[FileOffsetDateLineDocument],
+          // needed only for SampleJavaParser for Kryo
+          classOf[Array[FileOffsetLineDocument]],
+          // using generic Java Hashmap instead of classes, it's easier to extend
+          classOf[HashMap[String, String]],
+          classOf[Array[HashMap[String, String]]],
+          classOf[HashMap[String, Long]],
+          classOf[Array[HashMap[String, Long]]],
+          classOf[AnyRef],
+          classOf[Array[AnyRef]]))
+          // XXX: TODO: should have to do any of this any more if getting reflection working and then using the returns() method and iterating over the list of possible return objects and then registering each one and Array[eachOne] 
     } else {
       println("not using Kryo serialization, defaulting to slower but safer Java serialization")
     }
@@ -215,10 +182,12 @@ object TextToElasticsearch {
     conf.set("spark.speculation", "false")
     //conf.set("es.query", "?q=me*")
     val sc = new SparkContext(conf)
+    println("Created Spark Context on Spark version %s".format(sc.version))
     //val lines = sc.textFile(path).cache()
     // thought I was on to something with lines.name but this returns the file glob, not the individual file names so
     // must go lower level to Hadoop InputFormat to allow us to index the originating filename as textFile() doesn't allow for this
     sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
+    println("Reading in data from user supplied source: %s".format(path))
     val lines = sc.hadoopFile(path, classOf[TextInputFormat], classOf[LongWritable], classOf[Text], sc.defaultMinPartitions)
     val hadoopRdd = lines.asInstanceOf[HadoopRDD[LongWritable, Text]]
     val fileLines = hadoopRdd.mapPartitionsWithInputSplit { (inputSplit, iterator) =>
@@ -236,10 +205,11 @@ object TextToElasticsearch {
           (filepath.toString(), Long.valueOf(l._1.toString()).longValue(), l._2.toString())
         }
       }
-    }.cache()
+    } // .cache() might actually slow this down it's better to re-read than to serialize to disk
 
     val start: Long = System.currentTimeMillis
     // ====================================================
+    // XXX: TODO: instead of doing .count() can we use an accumulator here?
     var count: String = "uncounted"
     if (do_count) {
       println("\n*** Calculating how many records we are going to be dealing with - there is overhead to this as it's basically a pre-job but it allows us to check the counts in Elasticsearch later on for higher confidence in the correctness and completeness of the indexing\n")
@@ -264,6 +234,46 @@ object TextToElasticsearch {
       }
     })
     */
+    
+    // XXX: consider doing this in the new Scala Reflections API from 2.10 (marked experimental) to better support Scala types
+    // primary driver for this is to allow a client of mine to use custom Java parser classes
+    // this is what's been giving me java.lang.ClassNotFoundException: Parser
+    //try {
+    //import scala.reflect.runtime.{universe => ru}
+    //def getTypeTag[T: ru.TypeTag](obj: T) = ru.typeTag[T]
+    //val parserA = getTypeTag(parser).tpe
+    //val m = ru.runtimeMirror(getClass.getClassLoader)
+    //val classLoader = MainClass.class.getClassLoader();
+    //val parserInstance = parserClass.newInstance().asInstanceOf[Class[parserClass.getName]]
+    //val params = Array[Class] // classOf[String], classOf[Long], classOf[String]]
+    //params[0] = classOf[String]
+    //params[1] = classOf[Long]
+    //params[2] = classOf[String]
+    //val Parser = parserClass.getDeclaredMethod("parse", classOf[Parser])
+    //println("Parser = " + parserClass.getName())
+    //val parserInstance = classLoader.loadClass(parserClass)
+    //val parserInstance = Class.forName(parser).getConstructor().newInstance() // parser.newInstance()(l._1, l._2, l._3)
+    //val params = Array[classOf[String], classOf[Long], classOf[String]]
+    //val parse = cls.getDeclaredMethod("parse", params)
+    
+    //val parserClass = Class.forName(parser)
+    //val classLoader = java.lang.ClassLoader.getSystemClassLoader()
+    //val parserInstance2 = Class.forName(parser).getConstructor().newInstance()
+    //val parserInstance = parserInstance2.asInstanceOf(parserClass)
+
+    //} catch {
+    //  case e: ClassNotFoundException => e.printStackTrace();
+    //}
+    
+    val parserInstance = new Parser()
+    //val parserInstance = new ParserNoOffset()
+    //val parserInstance = new SampleJavaParser()
+    //val acc = sc.accumulator(0)
+    // partially applied function causes Kryo serialization error:
+    // java.lang.IllegalArgumentException: Class is not registered: HariSekhon.Spark.TextToElasticsearch$$anonfun$2
+    // Note: To register this class use: kryo.register(HariSekhon.Spark.TextToElasticsearch$$anonfun$2.class);
+    //val broadcast = sc.broadcast(parserInstance.parse _)
+    val broadcast = sc.broadcast(parserInstance)
     // case class to annotate fields for indexing in Elasticsearch
     //val es_map = lines.map(fileLine => {
     val es_map = fileLines.map(l => {
@@ -271,20 +281,25 @@ object TextToElasticsearch {
       // XXX: only use this for debugging at small scale on your laptop!
       //println("\n*** path: '%s', offset: '%s', line: '%s'\n".format(l._1, l._2, l._3))
       // converting earlier in the pipeline now to avoid Kryo serialization errors
-      //Class.forName(parser).getConstructor().newInstance().parser(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString()) // parser.newInstance()(l._1, l._2, l._3)
       // last minute conversions to prevent org.elasticsearch.hadoop.serialization.EsHadoopSerializationException, did earlier conversions in fileLines mapPartitionsWithInputSplit and changed case class instead
       //FileLine(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
-      HariSekhon.Spark.Parser.parse(l._1, l._2, l._3)
+      //parserInstance.parse(_, _, _)
+      //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      // this gets rg.elasticsearch.hadoop.serialization.EsHadoopSerializationException: Cannot handle type [class HariSekhon.Spark.TextToElasticsearch$$anonfun$2$$anonfun$apply$2], instance [<function3>] using writer [org.elasticsearch.spark.serialization.ScalaValueWriter@xxxxxxxx
+      //Parser.parse(_, _, _)
+      // this is not guaranteed to be accurate in Transformations and in fact in testing it isn't
+      //acc += 1
+      broadcast.value.parse(l._1.toString(), Long.valueOf(l._2.toString()), l._3.toString())
     })
     es_map.saveToEs(index + "/" + es_type)
+    //println("accumulator counted %d records".format(acc.value))
 
     lines.unpersist()
     // TODO: do elasticsearch query vs count reporting here
     // the high level API would pull all data through RDD whereas I just want the hit count header on first page of 10 results
     // maybe handle this in calling script instead
     sc.stop()
-    // TODO: tie in with count above to be an optional switch
     val count_file = index.replaceAll("[^A-Za-z0-9_-]", "_")
     val secs = (System.currentTimeMillis - start) / 1000
     println("\n*** Finished indexing path '%s' (%s records) to Elasticsearch index '%s' (nodes: %s) in %d secs\n".format(path, count, index, es_nodes, secs))
@@ -295,10 +310,12 @@ object TextToElasticsearch {
       println("writing uncounted placeholder file for index '%s' to /tmp/%s.count\n".format(index, count_file))
     }
     // Still write the file for uniformity
-    // raises FileNotFoundException at end of job when using globs for Spark's textFile(), use index name converted for filename safety instead
+    // raises FileNotFoundException at end of job when using globs for Spark's textFile() so using index name converted for filename safety instead
+    // this will overwrite the last file so it only keeps the last run but this is good enough for my purposes
     val pw = new PrintWriter(new File("/tmp/" + count_file + ".count"))
     pw.write(count.toString)
     pw.close()
+    
     //}
 
   }

@@ -14,7 +14,7 @@ package HariSekhon.Spark
 // Elasticsearch document
 @SerialVersionUID(101L)
 // only serializes in ESHadoop if I make it a case class again
-case class FileLineDocument (path: String, offset: Long, line: String)
+case class FileLineDocument (path: String, line: String)
   extends ElasticsearchDocument
     with Serializable {
 

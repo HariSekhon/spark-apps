@@ -18,23 +18,53 @@
 
 package HariSekhon.Spark
 
+import java.lang.Long
+import java.util.HashMap
+import java.util.ArrayList
+
+
 // Parser class to be called in TextToElasticsearch
 @SerialVersionUID(100L)
-object Parser extends Serializable {
-  // TODO: add DateLineParser logic here
-  def parse(path: String, offset: Long, line: String): ElasticsearchDocument = {
-    val path2 = //if (path.isEmpty()) {
-    //  ""
-    //} else {
-      path.replaceFirst("^file:", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
-    //}
+class Parser extends AbstractParser {
+  //def parse(path: String, offset: Long, line: String): HashMap[String, String] = {
+	def parse(path: String, offset: Long, line: String): AnyRef = { // using AnyRef to allow overriding in ParserNoOffset
+    val path_stripped = strip_file_scheme(path)
+    // TODO: add DateLineParser logic here
     val date: String = null
-    if (date == null) {
-      new FileLineDocument(path2, offset, line)
-    } else {
-      new FileDateLineDocument(path2, offset, date, line)
+    val doc = new HashMap[String, String]()
+    /*
+    doc.put("path", path_stripped)
+    
+    if (offset > -1) {
+      doc.put("offset", offset.toString())
     }
+    doc.put("line", line)
+    if (date != null) {
+      doc.put("date", date.toString())
+    }
+    doc
+    */
+    new FileOffsetLineDocument(path_stripped, offset, line)
+  }
+
+  // TODO: move this to utils lib
+  def strip_file_scheme(path: String) = {
+    val path2 = //if (path.isEmpty()) {
+      //  ""
+      //} else {
+      path.replaceFirst("^file://", "").replaceFirst("^hdfs:\\/\\/[\\w.-]+(?:\\d+)?", "")
+    //}
+    path2
+  }
+
+  // return a list of possible return objects to pass to Kryo registration for optimization
+  def returns(): AnyRef = {
+    /*
+    val a = new ArrayList[AnyRef]();
+    a.add(FileOffsetLineDocument("path", 0L, "line"))
+    a.add(FileOffsetDateLineDocument("path", 0L, "line"))
+    a
+    */
+    FileOffsetLineDocument("path", 0L, "line")
   }
 }
-
-class Parser {}
