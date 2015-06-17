@@ -85,8 +85,8 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-[My Toolbox repo](https://github.com/harisekhon/toolbox) adjacent to this one which contains the original Pig & Hive programs among other goodies related to Hadoop, NoSQL, Solr, Elasticsearch, Linux CLI tools etc:
+My [Toolbox repo](https://github.com/harisekhon/toolbox) adjacent to this one which contains the original Pig & Hive programs among other goodies related to Hadoop, NoSQL, Solr, Elasticsearch, Linux CLI tools etc:
 
-[The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) for monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc:
+The [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) for monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc:
 
-[My Java utility library](https://github.com/harisekhon/lib-java) that this code uses:
+My [Java utility library](https://github.com/harisekhon/lib-java) that this code uses:
