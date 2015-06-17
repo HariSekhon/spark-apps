@@ -1,4 +1,4 @@
-Spark => Elasticsearch Indexer (Kafka streaming + Hadoop HDFS batch) [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
+Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
 ================================
 
 Generic Spark to Elasticsearch indexing application written in Scala to provide real-time Full-Text search on your Big Data.
