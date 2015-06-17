@@ -90,4 +90,4 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 * [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure
 
-* [My Java utility library](https://github.com/harisekhon/lib-java) that this code uses
+* [My Java utility library](https://github.com/harisekhon/lib-java) - leveraged in this code as a submodule
