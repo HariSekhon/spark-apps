@@ -15,7 +15,7 @@
 
 name := "spark-to-elasticsearch"
 
-version := "0.5.5"
+version := "0.5.6"
 
 scalaVersion := "2.10.4"
 

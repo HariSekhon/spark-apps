@@ -35,6 +35,7 @@ import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapred.TextInputFormat
 import org.apache.commons.cli.OptionBuilder
+import scala.util.Properties.envOrElse
 import java.util.HashMap
 // for Kryo serialization
 import java.lang.Long
@@ -59,7 +60,13 @@ object TextToElasticsearch {
 
     val path: String = cmd.getOptionValue("p")
     // TODO: make these shared options get parsed with shared code between TextToElasticsearch and KafkaToElasticsearch
-    val index: String = cmd.getOptionValue("i")
+    val index: String = if(cmd.hasOption("i")){
+    	cmd.getOptionValue("i")
+    } else if(!envOrElse("ELASTICSEARCH_INDEX", "").equals("")) {
+        sys.env("ELASTICSEARCH_INDEX")
+    } else {
+        usage("--index not specified"); ""
+    }
     val es_type: String = if (cmd.hasOption("y")) {
       cmd.getOptionValue("y")
     } else {
@@ -69,7 +76,7 @@ object TextToElasticsearch {
     val es_nodes: String = if(cmd.hasOption("E")){
       cmd.getOptionValue("E")
     } else {
-      "localhost:9200"
+    	envOrElse("ELASTICSEARCH_HOST", "localhost:9200")
     }
     // TODO: in testing this makes little difference to performance, test this more at scale
     val do_count: Boolean = cmd.hasOption("c")
