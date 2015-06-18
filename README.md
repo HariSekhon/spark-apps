@@ -66,6 +66,14 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
+Environment variables - as with a lot of my programs, such as those in the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) and [Toolbox](https://github.com/harisekhon/toolbox) this application supports use of the following environment variables for convenience instead of having to specify all the switches for ```--index/--type/--es-nodes```:
+
+```
+* $ELASTICSEARCH_HOST
+* $ELASTICSEARCH_INDEX
+* $ELASTICSEARCH_TYPE
+```
+
 ### Advanced - Custom Parsers ###
 
 To create your own parser extend the abstract class ```AbstractParser``` returning a serializable object containing only the fields you want to index to Elasticsearch.
