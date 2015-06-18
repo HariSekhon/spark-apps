@@ -68,11 +68,9 @@ You will likely need to throttle this job given it's easy for a Hadoop/Spark clu
 
 Environment variables - as with a lot of my programs, such as those in the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) and [Toolbox](https://github.com/harisekhon/toolbox) this application supports use of the following environment variables for convenience instead of having to specify all the switches for ```--index/--type/--es-nodes```:
 
-```
-* $ELASTICSEARCH_HOST
-* $ELASTICSEARCH_INDEX
-* $ELASTICSEARCH_TYPE
-```
+* ```$ELASTICSEARCH_HOST```
+* ```$ELASTICSEARCH_INDEX```
+* ```$ELASTICSEARCH_TYPE```
 
 ### Advanced - Custom Parsers ###
 
