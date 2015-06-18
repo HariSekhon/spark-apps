@@ -22,3 +22,9 @@ script:
 
 services:
   - elasticsearch
+
+env:
+  global:
+    - ELASTICSEARCH_HOST=myFakeHost
+    - ELASTICSEARCH_INDEX=myIndex
+    - ELASTICSEARCH_TYPE=myType
