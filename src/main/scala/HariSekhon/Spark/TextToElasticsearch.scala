@@ -70,7 +70,7 @@ object TextToElasticsearch {
     val es_type: String = if (cmd.hasOption("y")) {
       cmd.getOptionValue("y")
     } else {
-      index
+      envOrElse("ELASTICSEARCH_TYPE", index)
     }
     //val es_nodes = validate_nodeport_list(args(2))
     val es_nodes: String = if(cmd.hasOption("E")){
