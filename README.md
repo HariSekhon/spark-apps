@@ -38,7 +38,7 @@ After this finishes you can find the Spark application jar under target/scala-*/
 
 The given data path may be a directory, a file glob or comma separated list and can decompress formats for which Hadoop has native support such as .gz / .bz2. Also supports directory recursion.
 
-The order of the arguments is important here:
+As per Spark standard option handling ```--class``` must come before the jar, switches after the jar belong to this application:
 <!--
 ##### Real-time Kafka Spark Streaming => Elasticsearch #####
 
