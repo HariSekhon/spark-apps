@@ -42,7 +42,9 @@ TAR="$SPARK.tgz"
 
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
 ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
-INDEX="spark-to-elasticsearch-test"
+# This is intentionally different to $ELASTICSEARCH_INDEX and $ELASTICSEARCH_TYPE to ensure --index/--type are taking precedence
+INDEX="spark-to-elasticsearch-index"
+TYPE="spark-to-elasticsearch-type"
 
 echo "deleting existing index '$INDEX' if it exists"
 curl -XDELETE "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX"
@@ -67,23 +69,35 @@ echo "running Spark job to index sample data files to Elasticsearch"
                           --class HariSekhon.Spark.TextToElasticsearch \
                           target/scala-*/spark-to-elasticsearch-assembly-*.jar \
                           --path "file://$SAMPLE_DATA" \
-                          --index "$INDEX" --type 'testtype' \
+                          --index "$INDEX" --type "$TYPE" \
                           --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
 echo
 echo
 
-echo "Checking 6 documents were indexed to Elasticsearch"
-curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
-    tee /dev/stderr |
-        grep -q '"total" : 6,' &&
-            echo -e "\nFound 6 Elasticsearch documents indexed as expected" ||
-            { echo -e "\nDidn't find 6 Elasticsearch documents as expected"; exit 1; }
+results="$(curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty")"
+echo "$results"
 echo
 
-echo "Checking we can find document 6 indexed as expected"
-curl -s "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$INDEX/_search?pretty" |
-    grep -q '"_source":{"path":"[^:]\+/elasticsearch-data/dir2/file2","offset":10,"line":"six"}' &&
-        echo "Found document 'six' with path and offset" ||
-        { echo "Failed to find document 'six' contents with path and offset"; exit 1; }
+die(){ echo -e "$@"; exit 1; }
+
+# This would be better with jq but doubt it's available
+echo "Checking 6 documents were indexed to Elasticsearch"
+grep -q '"total" : 6,' <<< "$results" &&
+    echo "Found 6 Elasticsearch documents indexed as expected" ||
+        die "Didn't find 6 Elasticsearch documents as expected"
+echo
+
+echo "Checking we indexed to the right index and type"
+grep -q '"_index" : "spark-to-elasticsearch-index",' <<< "$results" &&
+    echo "indexed to correct index" ||
+        die "indexed to the wrong index!"
+grep -q '"_type" : "spark-to-elasticsearch-type",' <<< "$results" &&
+    echo "indexed to correct type" ||
+        die "indexed to the wrong type!"
+
+echo "Checking we can find document number 6 indexed as expected"
+grep -q '"_source":{"path":"[^:]\+/elasticsearch-data/dir2/file2","offset":10,"line":"six"}' <<< "$results" &&
+    echo "Found document 'six' with path and offset" ||
+        die"Failed to find document 'six' contents with path and offset"
 echo
 echo 'SUCCESS!'
