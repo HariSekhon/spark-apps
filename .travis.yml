@@ -25,6 +25,6 @@ services:
 
 env:
   global:
-    - ELASTICSEARCH_HOST=myFakeHost
+    - ELASTICSEARCH_HOST=localhost
     - ELASTICSEARCH_INDEX=myIndex
     - ELASTICSEARCH_TYPE=myType
