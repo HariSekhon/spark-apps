@@ -11,7 +11,7 @@ Provides 2 ready-to-run Applications:
 -->
 This is based off my Pig & Hive freebies for indexing structured and unstructured data in Hadoop to Elasticsearch & Solr/SolrCloud, see my adjacent [Toolbox repo](https://github.com/harisekhon/toolbox) for those programs.
 
-Includes Kryo serialization optimization, and pluggable parsers
+Includes Kryo serialization optimization, and pluggable parsers, as well as option to count records for reporting and comparison. Serialization optimization can be disabled with a command line switch to use the slower but slightly more robust Java serialization.
 
 Still on the todo list is adding varied date detection + parsing from which to create a time range query-able field in Elasticsearch.
 
@@ -53,8 +53,6 @@ spark-submit ... --class KafkaToElasticsearch \
 
 ##### Batch HDFS / local storage => Elasticsearch #####
 -->
-
-You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ```
 spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
