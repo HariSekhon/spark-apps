@@ -1,6 +1,8 @@
 Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
 ================================
 
+Note: this is functional but early stages and as such isn't productionized yet as there is a lot of code cleanup, refactoring, unit tests and validation functions to be added.
+
 Generic Spark to Elasticsearch indexing application written in Scala to provide real-time Full-Text search on your Big Data.
 <!--
 Provides 2 ready-to-run Applications:
