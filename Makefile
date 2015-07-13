@@ -13,8 +13,8 @@
 
 make:
 	git submodule update --init
-	cd lib && mvn package
-	sbt assembly
+	cd lib && mvn clean package
+	sbt clean assembly
 
 clean:
 	cd lib && mvn clean
@@ -23,4 +23,12 @@ clean:
 update:
 	git pull
 	git submodule update --init
-	make clean make
+	make
+
+# useful for quicker compile testing but not deploying to Spark
+p:
+	make package
+package:
+	git submodule update --init
+	cd lib && mvn clean package
+	sbt package 
