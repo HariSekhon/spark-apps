@@ -18,6 +18,7 @@
 
 package HariSekhon.Spark
 
+import HariSekhon.Utils._
 import java.lang.Long
 import java.util.HashMap
 import java.util.ArrayList
@@ -27,7 +28,7 @@ import java.util.ArrayList
 class ParserNoOffset extends Parser {
   
   override def parse(path: String, offset: Long, line: String): AnyRef = {
-    val path_stripped = strip_file_scheme(path)
+    val path_stripped = strip_scheme_host(path)
     val date: String = null
     /*
     val doc = new HashMap[String, String]();
