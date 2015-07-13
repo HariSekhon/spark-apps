@@ -30,7 +30,7 @@ Uses the standard SBT build process to automatically pull in all dependencies an
 ```
 git clone https://github.com/harisekhon/spark-to-elasticsearch
 cd spark-to-elasticsearch
-make clean make
+make
 ```
 Requires SBT and Maven to be in the $PATH. Make will first download and build my personal Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
 
