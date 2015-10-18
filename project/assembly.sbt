@@ -4,7 +4,7 @@
 //
 //  vim:ts=4:sts=4:sw=4:et
 //
-//  https://github.com/harisekhon/spark-to-elasticsearch
+//  https://github.com/harisekhon/spark-to-apps
 //
 //  License: see accompanying Hari Sekhon LICENSE file
 //
