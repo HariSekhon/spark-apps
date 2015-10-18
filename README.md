@@ -109,7 +109,7 @@ spark-submit --master local[3]
              target/scala-*/spark-to-elasticsearch-assembly-*.jar \
              --kafka <zkhost1:2181,zkhost2:2181,zkhost3:2181> \
              --topic <topic> \
-             --path /data/topic
+             --path hdfs://namenode/etl/topic
 ```
 
 ##### Spark Streaming Network Socket Word / Line Counts #####
