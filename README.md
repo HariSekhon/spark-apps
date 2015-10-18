@@ -1,4 +1,4 @@
-Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/harisekhon/spark-to-elasticsearch.svg?branch=master)](https://travis-ci.org/harisekhon/spark-to-elasticsearch)
+Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/harisekhon/spark-apps.svg?branch=master)](https://travis-ci.org/harisekhon/spark-apps)
 ================================
 
 Note: this is functional but early stages and as such isn't productionized yet as there is a lot of code cleanup, refactoring, unit tests and validation functions to be added.
@@ -35,8 +35,8 @@ http://www.linkedin.com/in/harisekhon
 Uses the standard SBT build process to automatically pull in all dependencies and the assembly plugin to build an uber jar for simpler Spark deployments. Run the following commands to download and build the jar:
 
 ```
-git clone https://github.com/harisekhon/spark-to-elasticsearch
-cd spark-to-elasticsearch
+git clone https://github.com/harisekhon/spark-apps
+cd spark-apps
 make
 ```
 Requires SBT and Maven to be in the $PATH. Make will first download and build my personal Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
@@ -57,7 +57,7 @@ You will likely need to throttle this job given it's easy for a Hadoop/Spark clu
 
 ```
 spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
-                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 target/scala-*/spark-apps-assembly-*.jar \
                  --path 'hdfs://namenode/path/to/dir' \
                  --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
@@ -67,7 +67,7 @@ Or to only take certain files you can use a glob:
 
 ```
 spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
-                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 target/scala-*/spark-apps-assembly-*.jar \
                  --path 'hdfs://namenode/path/to/*.log.bz2' \
                  --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
@@ -77,7 +77,7 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 
 ```
 spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
-                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 target/scala-*/spark-apps-assembly-*.jar \
                  --path '/path/to/*.log.bz2' \
                  --index <index> [--type <type>] \
                  --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
@@ -94,7 +94,7 @@ Replace --master with your cluster, or specify minimum cores otherwise Spark doe
 ```
 spark-submit --master local[3] \
              --class HariSekhon.Spark.KafkaToElasticsearch \
-             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             target/scala-*/spark-apps-assembly-*.jar \
              --kafka <kafka1:9092,kafka2:9092,...> \
              --topic <topic> \
              --index <index>/<type> \
@@ -106,7 +106,7 @@ spark-submit --master local[3] \
 ```
 spark-submit --master local[3] \
              --class HariSekhon.Spark.KafkaToTextFiles \
-             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             target/scala-*/spark-apps-assembly-*.jar \
              --kafka <zkhost1:2181,zkhost2:2181,zkhost3:2181> \
              --topic <topic> \
              --path hdfs://namenode/etl/topic
@@ -116,7 +116,7 @@ spark-submit --master local[3] \
 ```
 spark-submit --master local[3] \
              --class HariSekhon.Spark.NetworkCounts \
-             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             target/scala-*/spark-apps-assembly-*.jar \
              --host localhost \
              --port 9999 \
              --interval 5
@@ -137,7 +137,7 @@ To create your own parser extend the abstract class ```AbstractParser``` returni
 <!--
 Uses Scala's new Reflection API in 2.10 to dynamically load the parser to allow for supplying your own Parser class at runtime for custom extensible parsing without modifying this stable base code.
 
-Package the parser class/object and the Elasticsearch document class in to a jar and then supply your class/object name and jar names as options on the ```spark-submit``` command line by specifying ```--jars my-parser.jar``` before spark-to-elasticsearch-assembly-*.jar and  ```--parser com.domain.MyParser``` after it.
+Package the parser class/object and the Elasticsearch document class in to a jar and then supply your class/object name and jar names as options on the ```spark-submit``` command line by specifying ```--jars my-parser.jar``` before spark-apps-assembly-*.jar and  ```--parser com.domain.MyParser``` after it.
 -->
 
 ### Updating ###
