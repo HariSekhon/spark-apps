@@ -11,23 +11,33 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+.PHONY: make
 make:
-	git submodule update --init
-	cd lib && mvn clean package
+	make lib
 	sbt clean assembly
 
+.PHONY: lib
+lib:
+	git submodule update --init
+	cd lib && mvn clean package
+	sbt eclipse || :
+
+.PHONY: clean
 clean:
 	cd lib && mvn clean
 	sbt clean
 
+.PHONY: update
 update:
 	git pull
 	git submodule update --init
 	make
 
 # useful for quicker compile testing but not deploying to Spark
+.PHONY: p
 p:
 	make package
+.PHONY: package
 package:
 	git submodule update --init
 	cd lib && mvn clean package
