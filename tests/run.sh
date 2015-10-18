@@ -35,7 +35,7 @@ six
 EOF
 echo
 
-SPARK_VERSION=1.4.0
+SPARK_VERSION=1.4.1
 BIN="bin-hadoop2.6"
 SPARK="spark-$SPARK_VERSION-$BIN"
 TAR="$SPARK.tgz"
