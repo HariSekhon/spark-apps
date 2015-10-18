@@ -4,7 +4,7 @@ import HariSekhon.Utils._
 
 import org.apache.commons.cli.OptionBuilder
 
-object BaseOptions {
+object ElasticsearchOptions {
 
     // must use older commons-cli API to not conflict with Spark's embedded commons-cli
     // urgh this would work in Java but not in Scala since due to static class 
