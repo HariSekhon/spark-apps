@@ -93,7 +93,7 @@ Replace --master with your cluster, or specify minimum cores otherwise Spark doe
 
 ```
 spark-submit --master local[3] \
-             --class KafkaToElasticsearch \
+             --class HariSekhon.Spark.KafkaToElasticsearch \
              target/scala-*/spark-to-elasticsearch-assembly-*.jar \
              --kafka <kafka1:9092,kafka2:9092,...> \
              --topic <topic> \
@@ -104,8 +104,8 @@ spark-submit --master local[3] \
 ##### Kafka => HDFS #####
 
 ```
-spark-submit --master local[3]
-             --class KafkaToTextFiles \
+spark-submit --master local[3] \
+             --class HariSekhon.Spark.KafkaToTextFiles \
              target/scala-*/spark-to-elasticsearch-assembly-*.jar \
              --kafka <zkhost1:2181,zkhost2:2181,zkhost3:2181> \
              --topic <topic> \
@@ -114,7 +114,7 @@ spark-submit --master local[3]
 
 ##### Spark Streaming Network Socket Word / Line Counts #####
 ```
-spark-submit --master local[3]
+spark-submit --master local[3] \
              --class HariSekhon.Spark.NetworkCounts \
              target/scala-*/spark-to-elasticsearch-assembly-*.jar \
              --host localhost \
