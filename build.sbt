@@ -34,7 +34,7 @@ libraryDependencies ++= Seq (
     // this pulled in loads of deps for Clojure and others which wouldn't resolve, using elasticsearch-spark instead
     //"org.elasticsearch" % "elasticsearch-hadoop" % "2.0.2",
     "org.elasticsearch" %% "elasticsearch-spark" % "2.1.0.Beta4",
-    // Spark has it's own older version of commons-cli and using the newer 1.3 API methods causes:
+    // Spark has it's own older version of commons-cli and using the newer commons-cli 1.3 non-static API methods causes:
     // Exception in thread "main" java.lang.NoSuchMethodError: org.apache.commons.cli.Option.builder(Ljava/lang/String;)Lorg/apache/commons/cli/Option$Builder;
     //"commons-cli" % "commons-cli" % "1.3"
     "commons-cli" % "commons-cli" % "1.2",
