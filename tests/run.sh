@@ -67,7 +67,7 @@ cd ..
 echo "running Spark job to index sample data files to Elasticsearch"
 "$srcdir/$SPARK/bin/spark-submit" --master local[2] \
                           --class HariSekhon.Spark.TextToElasticsearch \
-                          target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                          target/scala-*/spark-apps-assembly-*.jar \
                           --path "file://$SAMPLE_DATA" \
                           --index "$INDEX" --type "$TYPE" \
                           --es-nodes "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT"
