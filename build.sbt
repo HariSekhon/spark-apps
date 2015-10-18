@@ -39,5 +39,6 @@ libraryDependencies ++= Seq (
     //"commons-cli" % "commons-cli" % "1.3"
     "commons-cli" % "commons-cli" % "1.2",
     //"org.scalatest" % "scalatest_2.10" % "2.2.4" % "test",
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+    "net.sf.jopt-simple" % "jopt-simple" % "4.9"
 )
