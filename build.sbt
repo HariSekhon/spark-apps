@@ -13,9 +13,9 @@
 //  http://www.linkedin.com/in/harisekhon
 //
 
-name := "spark-to-elasticsearch"
+name := "spark-apps"
 
-version := "0.5.6"
+version := "0.5.7"
 
 scalaVersion := "2.10.4"
 
