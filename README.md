@@ -49,9 +49,31 @@ The given data path may be a directory, a file glob or comma separated list and 
 
 As per Spark standard option handling ```--class``` must come before the jar, switches after the jar belong to this application:
 
-##### Batch HDFS / local storage => Elasticsearch #####
+####  Spark Batch Apps ####
+
+##### HDFS => Elasticsearch #####
 
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
+
+```
+spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
+                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 --path 'hdfs://namenode/path/to/dir' \
+                 --index <index> [--type <type>] \
+                 --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
+```
+
+Or to only take certain files you can use a glob:
+
+```
+spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
+                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+                 --path 'hdfs://namenode/path/to/*.log.bz2' \
+                 --index <index> [--type <type>] \
+                 --es-nodes <elasticsearch1:9200,elasticsearch2:9200,...>
+```
+
+##### Local Storage => Elasticsearch #####
 
 ```
 spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
@@ -62,26 +84,42 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 ```
 
 <!--
-##### Real-time Kafka Spark Streaming => Elasticsearch #####
+
+#### Real-time Spark Streaming Apps ####
+
+Replace --master with your cluster, or specify minimum cores otherwise Spark doesn't process the stream
+
+##### Kafka => Elasticsearch #####
 
 ```
-spark-submit ... --class KafkaToElasticsearch \
-                 target/scala-*/spark-to-elasticsearch-assembly-*.jar \
-                 --kafka <kafka1:9092,kafka2:9092,...> \
-                 --topic <topic> \
-                 --index <index>/<type> \
-                 --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
+spark-submit --master local[3] \
+             --class KafkaToElasticsearch \
+             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             --kafka <kafka1:9092,kafka2:9092,...> \
+             --topic <topic> \
+             --index <index>/<type> \
+             --es-nodes <elasticsearch1:9200,elasticseach2:9200,...>
+```
+
+##### Kafka => HDFS #####
+
+```
+spark-submit --master local[3]
+             --class KafkaToTextFiles \
+             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             --kafka <zkhost1:2181,zkhost2:2181,zkhost3:2181> \
+             --topic <topic> \
+             --path /data/topic
 ```
 
 ##### Spark Streaming Network Socket Word / Line Counts #####
-
-Replace --master with your cluster, or specify minimum cores otherwise Spark doesn't process the stream
 ```
-spark-submit --master local[3] --class HariSekhon.Spark.NetworkCounts \
-                               target/scala-*/spark-to-elasticsearch-assembly-*.jar \
-                               --host localhost \
-                               --port 9999 \
-                               --interval 5
+spark-submit --master local[3]
+             --class HariSekhon.Spark.NetworkCounts \
+             target/scala-*/spark-to-elasticsearch-assembly-*.jar \
+             --host localhost \
+             --port 9999 \
+             --interval 5
 ```
 -->
 
