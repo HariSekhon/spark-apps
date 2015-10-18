@@ -35,41 +35,41 @@ object KafkaToElasticsearch {
 
   def main(args: Array[String]) {
 
-    BaseOptions
+    ElasticsearchOptions
     
     //
     //OptionBuilder.withLongOpt("zookeepers")
-    //OptionBuilder.withArgName("zoo1,zoo2,...")
     //OptionBuilder.withDescription("ZooKeeper node list, comma separated with optional port numbers after each host (eg. node1:9200,node2:9200,...). Required")
     //OptionBuilder.hasArg()
+    //OptionBuilder.withArgName("zoo1,zoo2,...")
     //OptionBuilder.isRequired()
     //options.addOption(OptionBuilder.create("Z"))
-    //
+
     OptionBuilder.withLongOpt("kafka-brokers")
-    OptionBuilder.withArgName("kafka1,kafka2,...")
     OptionBuilder.withDescription("Kafka broker list, comma separated with optional port numbers after each host (eg. kafka1:9092,kafka2:9092,...). Required")
     OptionBuilder.hasArg()
+    OptionBuilder.withArgName("kafka1,kafka2,...")
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("K"))
     //
     OptionBuilder.withLongOpt("topic")
-    OptionBuilder.withArgName("topicname")
     OptionBuilder.withDescription("Kafka topic to read from")
     OptionBuilder.hasArg()
+    OptionBuilder.withArgName("topicname")
     OptionBuilder.isRequired()
     options.addOption(OptionBuilder.create("T"))
     //
     //OptionBuilder.withLongOpt("consumer-group")
-    //OptionBuilder.withArgName("group")
     //OptionBuilder.withDescription("Kafka consumer group")
     //OptionBuilder.hasArg()
+    //OptionBuilder.withArgName("group")
     //OptionBuilder.isRequired()
     //options.addOption(OptionBuilder.create("G"))
     //val num_partitions_to_consume = args(2)
     //OptionBuilder.withLongOpt("num-partitions")
-    //OptionBuilder.withArgName("num")
     //OptionBuilder.withDescription("Kafka number of partitions to consume")
     //OptionBuilder.hasArg()
+    //OptionBuilder.withArgName("num")
     //OptionBuilder.isRequired()
     //options.addOption(OptionBuilder.create("N"))
     
@@ -120,16 +120,16 @@ object KafkaToElasticsearch {
 
     // TODO: proper input validation of path dir/file/globs and <index/type> using my java lib later 
     if (kafka_brokers == null) {
-      usage("--k not set")
+      usage("-K / --kafka-brokers not defined")
     }
     if (topic == null) {
-      usage("--k not set")
+      usage("-T / --topic not defined")
     }
     if (es_nodes == null) {
-      usage("--es-nodes not set")
+      usage("-E / --es-nodes not defined")
     }
     if (index == null) {
-    	usage("--index not set")
+    	usage("-I / --index not set")
     }
     validate_nodeport_list(kafka_brokers)
     validate_nodeport_list(es_nodes)
