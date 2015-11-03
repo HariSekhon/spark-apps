@@ -156,8 +156,9 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-* [PyTools](https://github.com/harisekhon/pytools) - programs for Hadoop, Spark, Pig, Elasticsearch, Linux CLI - contains the original Pig & Hive programs this application was based off
-* [Tools](https://github.com/harisekhon/tools) - dozens of programs for Hadoop, Hive, Solr, Web, Linux CLI
+* [PyTools](https://github.com/harisekhon/pytools) - programs for Hadoop, Spark, Pig, Elasticsearch, Linux CLI - contains the original Pig => Elasticsearch / Solr programs this Spark => Elasticsearch application was based off
+
+* [Tools](https://github.com/harisekhon/tools) - dozens of programs for Hadoop, Hive, Solr, Web, Linux CLI - contains Hive => Elasticsearch related to this Spark => Elasticsearch program
 
 * [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters including Spark, Yarn, Elasticsearch etc. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure
 
