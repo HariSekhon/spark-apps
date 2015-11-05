@@ -156,7 +156,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-* [PyTools](https://github.com/harisekhon/pytools) - programs for Hadoop, Spark, Pig, Elasticsearch, Linux CLI - contains the original Pig => Elasticsearch / Solr programs this Spark => Elasticsearch application was based off
+* [PyTools](https://github.com/harisekhon/pytools) - programs for Hadoop, Spark, Pig, Elasticsearch, Solr, Linux CLI - contains the original Pig => Elasticsearch / Solr programs this Spark => Elasticsearch application was based off
 
 * [Tools](https://github.com/harisekhon/tools) - dozens of programs for Hadoop, Hive, Solr, Ambari, Web, Linux CLI - contains Hive => Elasticsearch related to this Spark => Elasticsearch program
 
