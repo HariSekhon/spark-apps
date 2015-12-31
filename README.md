@@ -1,4 +1,4 @@
-Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/harisekhon/spark-apps.svg?branch=master)](https://travis-ci.org/harisekhon/spark-apps)
+Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/HariSekhon/spark-apps.svg?branch=master)](https://travis-ci.org/HariSekhon/spark-apps)
 ================================
 
 Note: this is functional but early stages and as such isn't productionized yet as there is a lot of code cleanup, refactoring, unit tests and validation functions to be added.
