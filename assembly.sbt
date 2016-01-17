@@ -22,6 +22,7 @@ assemblySettings
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
   {
     case PathList("META-INF", "maven","org.slf4j","slf4j-api", p) if p.startsWith("pom")        => MergeStrategy.discard
+    case PathList("META-INF", "maven","commons-lang","commons-lang", p) if p.startsWith("pom")  => MergeStrategy.discard
     case PathList("com", "esotericsoftware", "minlog", p)         if p.startsWith("Log")        => MergeStrategy.first
     // too many things here condensed down to just dedupe all
     case PathList("com", "google", "common", "base", p)                                         => MergeStrategy.first
