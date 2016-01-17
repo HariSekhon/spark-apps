@@ -19,7 +19,7 @@
 //
 // https://github.com/harisekhon/toolbox
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import com.linkedin.harisekhon.Utils._
 import org.elasticsearch.spark._
@@ -83,7 +83,7 @@ object TextToElasticsearch {
     val parser: String = if (cmd.hasOption("parser")) {
       cmd.getOptionValue("parser")
     } else {
-      "HariSekhon.Spark.Parser"
+      "com.linkedin.harisekhon.spark.Parser"
     }
     // must know the doc type for Kryo efficient serialization
     // TODO: try to find a way to not have to specify this, eg. Kryo the ElasticsearchDocument trait instead
@@ -277,8 +277,8 @@ object TextToElasticsearch {
     //val parserInstance = new SampleJavaParser()
     //val acc = sc.accumulator(0)
     // partially applied function causes Kryo serialization error:
-    // java.lang.IllegalArgumentException: Class is not registered: HariSekhon.Spark.TextToElasticsearch$$anonfun$2
-    // Note: To register this class use: kryo.register(HariSekhon.Spark.TextToElasticsearch$$anonfun$2.class);
+    // java.lang.IllegalArgumentException: Class is not registered: com.linkedin.harisekhon.spark.TextToElasticsearch$$anonfun$2
+    // Note: To register this class use: kryo.register(com.linkedin.harisekhon.spark.TextToElasticsearch$$anonfun$2.class);
     //val broadcast = sc.broadcast(parserInstance.parse _)
     val broadcast = sc.broadcast(parserInstance)
     // case class to annotate fields for indexing in Elasticsearch
@@ -290,10 +290,10 @@ object TextToElasticsearch {
       // converting earlier in the pipeline now to avoid Kryo serialization errors
       // last minute conversions to prevent org.elasticsearch.hadoop.serialization.EsHadoopSerializationException, did earlier conversions in fileLines mapPartitionsWithInputSplit and changed case class instead
       //FileLine(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
-      //HariSekhon.Spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
+      //com.linkedin.harisekhon.spark.Parser.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
       //parserInstance.parse(_, _, _)
       //parserInstance.parse(l._1.toString(), Long.valueOf(l._2.toString()).longValue(), l._3.toString())
-      // this gets rg.elasticsearch.hadoop.serialization.EsHadoopSerializationException: Cannot handle type [class HariSekhon.Spark.TextToElasticsearch$$anonfun$2$$anonfun$apply$2], instance [<function3>] using writer [org.elasticsearch.spark.serialization.ScalaValueWriter@xxxxxxxx
+      // this gets rg.elasticsearch.hadoop.serialization.EsHadoopSerializationException: Cannot handle type [class com.linkedin.harisekhon.spark.TextToElasticsearch$$anonfun$2$$anonfun$apply$2], instance [<function3>] using writer [org.elasticsearch.spark.serialization.ScalaValueWriter@xxxxxxxx
       //Parser.parse(_, _, _)
       // this is not guaranteed to be accurate in Transformations and in fact in testing it isn't
       //acc += 1

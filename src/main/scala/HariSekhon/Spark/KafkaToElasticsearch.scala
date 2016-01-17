@@ -19,7 +19,7 @@
 //
 // https://github.com/harisekhon/toolbox
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import com.linkedin.harisekhon.Utils._
 import org.elasticsearch.spark._

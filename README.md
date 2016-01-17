@@ -56,7 +56,7 @@ As per Spark standard option handling ```--class``` must come before the jar, sw
 You will likely need to throttle this job given it's easy for a Hadoop/Spark cluster to overwhelm an Elasticsearch cluster, even when using all the performance tuning tricks available and running on high spec nodes. In that case you will get task failures reporting ES as overloaded. I recommend using a capacity constrained queue on Yarn.
 
 ```
-spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
+spark-submit ... --class com.linkedin.harisekhon.spark.TextToElasticsearch \
                  target/scala-*/spark-apps-assembly-*.jar \
                  --path 'hdfs://namenode/path/to/dir' \
                  --index <index> [--type <type>] \
@@ -66,7 +66,7 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 Or to only take certain files you can use a glob:
 
 ```
-spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
+spark-submit ... --class com.linkedin.harisekhon.spark.TextToElasticsearch \
                  target/scala-*/spark-apps-assembly-*.jar \
                  --path 'hdfs://namenode/path/to/*.log.bz2' \
                  --index <index> [--type <type>] \
@@ -76,7 +76,7 @@ spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
 ##### Local Storage => Elasticsearch #####
 
 ```
-spark-submit ... --class HariSekhon.Spark.TextToElasticsearch \
+spark-submit ... --class com.linkedin.harisekhon.spark.TextToElasticsearch \
                  target/scala-*/spark-apps-assembly-*.jar \
                  --path '/path/to/*.log.bz2' \
                  --index <index> [--type <type>] \
@@ -93,7 +93,7 @@ Replace --master with your cluster, or specify minimum cores otherwise Spark doe
 
 ```
 spark-submit --master local[3] \
-             --class HariSekhon.Spark.KafkaToElasticsearch \
+             --class com.linkedin.harisekhon.spark.KafkaToElasticsearch \
              target/scala-*/spark-apps-assembly-*.jar \
              --kafka <kafka1:9092,kafka2:9092,...> \
              --topic <topic> \
@@ -105,7 +105,7 @@ spark-submit --master local[3] \
 
 ```
 spark-submit --master local[3] \
-             --class HariSekhon.Spark.KafkaToTextFiles \
+             --class com.linkedin.harisekhon.spark.KafkaToTextFiles \
              target/scala-*/spark-apps-assembly-*.jar \
              --kafka <zkhost1:2181,zkhost2:2181,zkhost3:2181> \
              --topic <topic> \
@@ -115,7 +115,7 @@ spark-submit --master local[3] \
 ##### Spark Streaming Network Socket Word / Line Counts #####
 ```
 spark-submit --master local[3] \
-             --class HariSekhon.Spark.NetworkCounts \
+             --class com.linkedin.harisekhon.spark.NetworkCounts \
              target/scala-*/spark-apps-assembly-*.jar \
              --host localhost \
              --port 9999 \

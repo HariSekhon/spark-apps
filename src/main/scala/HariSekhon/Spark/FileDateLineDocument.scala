@@ -10,7 +10,7 @@
 //  License: see accompanying Hari Sekhon LICENSE file
 //
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 @SerialVersionUID(102L)
 // only serializes in ESHadoop if I make it a case class again

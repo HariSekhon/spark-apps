@@ -15,7 +15,7 @@
 
 // Spark Kafka => Line & Word Counts Application for monitoring a Kafka topic on the command line
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import com.linkedin.harisekhon.Utils._
 import org.apache.spark.SparkConf

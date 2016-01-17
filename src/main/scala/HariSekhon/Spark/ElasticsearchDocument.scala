@@ -9,7 +9,7 @@
 //  License: see accompanying Hari Sekhon LICENSE file
 //
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 trait ElasticsearchDocument {
 

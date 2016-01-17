@@ -1,4 +1,4 @@
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import com.linkedin.harisekhon.Utils._
 

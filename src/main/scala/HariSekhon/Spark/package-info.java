@@ -2,4 +2,4 @@
  * @author Hari Sekhon
  *
  */
-package HariSekhon.Spark;
+package com.linkedin.harisekhon.spark;
