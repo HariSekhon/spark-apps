@@ -13,12 +13,14 @@
 
 .PHONY: make
 make:
+	git submodule init
+	git submodule update --remote --recursive
 	make lib
 	sbt clean assembly
 
 .PHONY: lib
 lib:
-	git submodule update --init
+	git submodule update --init --remote --recursive
 	cd lib && mvn clean package
 	sbt eclipse || :
 
