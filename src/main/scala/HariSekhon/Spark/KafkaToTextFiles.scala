@@ -27,7 +27,7 @@
 
 package HariSekhon.Spark
 
-import HariSekhon.Utils._
+import com.linkedin.harisekhon.Utils._
 import org.apache.commons.cli.OptionBuilder
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext._

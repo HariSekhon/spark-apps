@@ -18,7 +18,7 @@
 
 package HariSekhon.Spark
 
-import HariSekhon.Utils._
+import com.linkedin.harisekhon.Utils._
 import java.lang.Long
 import java.util.HashMap
 import java.util.ArrayList
