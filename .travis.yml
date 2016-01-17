@@ -21,6 +21,9 @@ scala:
 before_install:
   - make
 
+notifications:
+  email: false
+
 script:
   - make test
 
