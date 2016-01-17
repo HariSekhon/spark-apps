@@ -32,7 +32,7 @@ clean:
 .PHONY: update
 update:
 	git pull
-	git submodule update --init
+	git submodule update --init --remote --recursive
 	make
 
 .PHONY: test
