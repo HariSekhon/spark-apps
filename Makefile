@@ -33,12 +33,17 @@ update:
 	git submodule update --init
 	make
 
+.PHONY: test
+test:
+	sbt test
+	bash-tools/all.sh
+
 # useful for quicker compile testing but not deploying to Spark
 .PHONY: p
 p:
 	make package
 .PHONY: package
 package:
-	git submodule update --init
+	git submodule update --init --remote --recursive
 	cd lib && mvn clean package
 	sbt package 
