@@ -22,7 +22,7 @@ before_install:
   - make
 
 script:
-  - tests/run.sh
+  - make test
 
 services:
   - elasticsearch
