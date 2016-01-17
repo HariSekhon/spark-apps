@@ -11,8 +11,19 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+# EUID /  UID not exported in Make
+# USER not populated in Docker
+ifeq '$(shell id -u)' '0'
+	SUDO =
+else
+	SUDO = sudo
+endif
+
 .PHONY: make
 make:
+	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
+	if [ -x /usr/bin/yum ];     then make yum-packages; fi
+
 	git submodule init
 	git submodule update --remote --recursive
 	make lib
@@ -28,6 +39,23 @@ lib:
 clean:
 	cd lib && mvn clean
 	sbt clean
+
+.PHONY: apt-packages
+apt-packages:
+	$(SUDO) apt-get update
+	# needed to fetch library submodules
+	$(SUDO) apt-get install -y git
+	# needed to fetch Spark for tests
+	$(SUDO) apt-get install -y wget
+	$(SUDO) apt-get install -y tar
+
+.PHONY: yum-packages
+yum-packages:
+	# needed to fetch the library submodules
+	rpm -q git || $(SUDO) yum install -y git
+	# needed to fetch Spark for tests
+	rpm -q wget || $(SUDO) yum install -y wget
+	rpm -q tar  || $(SUDO) yum install -y tar
 
 .PHONY: update
 update:
