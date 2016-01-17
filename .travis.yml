@@ -21,6 +21,8 @@ scala:
 before_install:
   - make
 
+sudo: true
+
 notifications:
   email: false
 
