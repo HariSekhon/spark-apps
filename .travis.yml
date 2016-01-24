@@ -26,6 +26,10 @@ sudo: required
 notifications:
   email: false
 
+branches:
+  only:
+    - master
+
 script:
   - make test
 
