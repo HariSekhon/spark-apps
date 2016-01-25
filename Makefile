@@ -31,7 +31,7 @@ build:
 
 .PHONY: lib
 lib:
-	git submodule update --init --remote --recursive
+	git submodule update --init --recursive
 	cd lib && mvn clean package
 	sbt eclipse || :
 
@@ -60,7 +60,7 @@ yum-packages:
 .PHONY: update
 update:
 	git pull
-	git submodule update --init --remote --recursive
+	git submodule update --init --recursive
 	make
 
 .PHONY: test
