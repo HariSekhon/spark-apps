@@ -25,13 +25,13 @@ build:
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 
 	git submodule init
-	git submodule update --remote --recursive
+	git submodule update --recursive
 	make lib
 	sbt clean assembly
 
 .PHONY: lib
 lib:
-	git submodule update --init --remote --recursive
+	git submodule update --init --recursive
 	cd lib && mvn clean package
 	sbt eclipse || :
 
@@ -60,7 +60,7 @@ yum-packages:
 .PHONY: update
 update:
 	git pull
-	git submodule update --init --remote --recursive
+	git submodule update --init --recursive
 	make
 
 .PHONY: test
@@ -75,6 +75,6 @@ p:
 	make package
 .PHONY: package
 package:
-	git submodule update --init --remote --recursive
+	git submodule update --init --recursive
 	cd lib && mvn clean package
 	sbt package 
