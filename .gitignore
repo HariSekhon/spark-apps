@@ -6,5 +6,5 @@ target/
 .worksheet
 *.sc
 *~
-tests/elasticsearch-data
-tests/spark-*-bin-hadoop*
+elasticsearch-data
+spark-*-bin-hadoop*
