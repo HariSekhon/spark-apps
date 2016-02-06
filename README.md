@@ -28,7 +28,7 @@ Hari Sekhon
 
 Big Data Contractor, United Kingdom
 
-http://www.linkedin.com/in/harisekhon
+https://www.linkedin.com/in/harisekhon
 
 ### Build ###
 
