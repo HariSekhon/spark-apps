@@ -43,7 +43,7 @@ script:
   - make test
 
 services:
-  - elasticsearch
+  - docker
 
 env:
   global:
