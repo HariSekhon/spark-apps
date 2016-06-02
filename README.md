@@ -1,5 +1,9 @@
-Spark => Elasticsearch Indexer [![Build Status](https://travis-ci.org/HariSekhon/spark-apps.svg?branch=master)](https://travis-ci.org/HariSekhon/spark-apps)
-================================
+Spark Apps (Scala)
+==================
+[![Build Status](https://travis-ci.org/HariSekhon/spark-apps.svg?branch=master)](https://travis-ci.org/HariSekhon/spark-apps)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-lightgrey.svg)
+
+### Spark => Elasticsearch Indexer
 
 Note: this is functional but early stages and as such isn't productionized yet as there is a lot of code cleanup, refactoring, unit tests and validation functions to be added.
 
