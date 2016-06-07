@@ -1,6 +1,6 @@
 package com.linkedin.harisekhon.spark
 
-import HariSekhon.Utils._
+import com.linkedin.harisekhon.Utils._
 
 import org.apache.commons.cli.OptionBuilder
 

@@ -9,7 +9,7 @@ class ParserTest extends FunSuite {
   // 
   // see tests/run.sh for functional tests
   
-  val parser = new Parser()
+//  val parser = new Parser()
   
   /* 
    * Not using this any more, now using strip_scheme_host() from use my standard utils

@@ -21,7 +21,7 @@
 
 package com.linkedin.harisekhon.spark
 
-import HariSekhon.Utils._
+import com.linkedin.harisekhon.Utils._
 import org.elasticsearch.spark._
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
