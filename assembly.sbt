@@ -10,7 +10,7 @@
 //
 //  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 //
-//  http://www.linkedin.com/in/harisekhon
+//  https://www.linkedin.com/in/harisekhon
 //
 
 // https://github.com/sbt/sbt-assembly
@@ -22,6 +22,7 @@ assemblySettings
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
   {
     case PathList("META-INF", "maven","org.slf4j","slf4j-api", p) if p.startsWith("pom")        => MergeStrategy.discard
+    case PathList("META-INF", "maven","commons-lang","commons-lang", p) if p.startsWith("pom")  => MergeStrategy.discard
     case PathList("com", "esotericsoftware", "minlog", p)         if p.startsWith("Log")        => MergeStrategy.first
     // too many things here condensed down to just dedupe all
     case PathList("com", "google", "common", "base", p)                                         => MergeStrategy.first

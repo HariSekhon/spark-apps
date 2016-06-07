@@ -19,7 +19,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "
 # ========================== #
-# Running Spark App Tests
+# Running Spark Apps ALL
 # ========================== #
 "
 
@@ -28,5 +28,7 @@ cd "$srcdir/..";
 for script in $(find tests -name 'test*.sh'); do
     $script
 done
+
+#./run.sh
 
 bash-tools/all.sh

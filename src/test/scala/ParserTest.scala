@@ -1,4 +1,4 @@
-
+import com.linkedin.harisekhon.spark._
 import org.scalatest._
 
 class ParserTest extends FunSuite {
