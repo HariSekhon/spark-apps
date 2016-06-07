@@ -14,12 +14,12 @@
 //
 
 // Generic Spark port of my Pig => Elasticsearch unstructured text / log files Hadoop job
-// 
+//
 // based off 'pig-text-to-elasticsearch.pig' (see my Pig / Hive => Solr / Elasticsearch freebies in my public toolbox:
 //
 // https://github.com/harisekhon/toolbox
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import HariSekhon.Utils._
 import org.elasticsearch.spark._

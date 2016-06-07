@@ -15,7 +15,7 @@
 
 // Spark Kafka => Line & Word Counts Application for monitoring a Kafka topic on the command line
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import HariSekhon.Utils._
 import org.apache.spark.SparkConf
@@ -31,9 +31,9 @@ import org.apache.spark.streaming.StreamingContext._
 
 // Apache Commons CLI is stuck on old static version compiled directly in to Spark's assembly and
 // static chaining doesn't work in Scala, making arg parsing really ugly, switching to another parser
-import org.apache.commons.cli.OptionBuilder
-//import joptsimple.OptionParser
-//import joptsimple.OptionSet
+//import org.apache.commons.cli.OptionBuilder
+import joptsimple.OptionParser
+import joptsimple.OptionSet
 
 import java.lang.Integer
 
@@ -41,16 +41,18 @@ object NetworkCounts {
 
   def main(args: Array[String]) {
 
-    /*
+    
     val parser = new OptionParser( "h*H:P:")
     
     parser.accepts("host").withRequiredArg()
     parser.accepts("port").withRequiredArg()
     parser.accepts("interval").withRequiredArg()
     
-    val options = parser.parse(args)
+    // XXX: magic to split the String[] args across the varargs required by JOpt Simple's parser.parse()
+    // in Java this should just work without such tricks
+    val options = parser.parse(args: _*)
     
-    val host_opt: String = if(options.has("host") && options.hasArgument("host")){
+    val host: String = if(options.has("host") && options.hasArgument("host")){
       String.valueOf(options.valueOf("host"))
     } else if(options.has("H") && options.hasArgument("H")){
       String.valueOf(options.valueOf("H"))
@@ -59,7 +61,7 @@ object NetworkCounts {
     	quit("-H / --host not defined"); ""
     }
     
-    val port_opt: String = if(options.has("port") && options.hasArgument("port")){
+    val port: String = if(options.has("port") && options.hasArgument("port")){
     	String.valueOf(options.valueOf("port"))
     } else if(options.has("P") && options.hasArgument("P")){
     	String.valueOf(options.valueOf("P"))
@@ -67,15 +69,15 @@ object NetworkCounts {
     	quit("-P / --port not defined"); ""
     }
     
-    val interval_opt: String = if(options.has("interval") && options.hasArgument("interval")){
+    val interval: String = if(options.has("interval") && options.hasArgument("interval")){
     	String.valueOf(options.valueOf("interval"))
     } else if(options.has("i") && options.hasArgument("i")){
     	String.valueOf(options.valueOf("i"))
     } else {
     	quit("-i / --interval not defined"); ""
     }
-    */
     
+    /*
     HostOptions
     
     OptionBuilder.withLongOpt("interval")
@@ -108,7 +110,7 @@ object NetworkCounts {
     validate_host(host)
     validate_port(port)
     validate_int(interval, "interval", 1, 3600)
-    
+    */
     val checkpointDirectory = "/tmp/spark_checkpoint_kafka_network_counts"
 
     // AppName needs to be short since it gets truncated in Spark 4040 job Web UI

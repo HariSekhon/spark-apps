@@ -14,9 +14,9 @@
 //
 
 // Spark Kafka => HDFS Application for writing from Kafka to HDFS or local as text files
-// 
+//
 // See also:
-// 
+//
 // Spark HDFS => Elasticsearch & Spark Streaming Kafka => Elasticsearch Applications:
 //
 // https://github.com/harisekhon/spark-apps
@@ -25,7 +25,7 @@
 //
 // https://github.com/harisekhon/toolbox
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import HariSekhon.Utils._
 import org.apache.commons.cli.OptionBuilder

@@ -13,7 +13,7 @@
 //  http://www.linkedin.com/in/harisekhon
 //
 
-package HariSekhon.Spark;
+package com.linkedin.harisekhon.spark;
 
 import java.io.Serializable;
 //import java.util.ArrayList;

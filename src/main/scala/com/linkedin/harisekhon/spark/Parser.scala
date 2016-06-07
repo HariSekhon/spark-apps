@@ -13,10 +13,10 @@
 //  http://www.linkedin.com/in/harisekhon
 //
 
-// Parser for TextToElasticsearch (generic Spark port of my Pig => Elasticsearch unstructured 
+// Parser for TextToElasticsearch (generic Spark port of my Pig => Elasticsearch unstructured
 // text / log files Hadoop job originally from https://github.com/harisekhon/toolbox)
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import HariSekhon.Utils._
 import java.lang.Long

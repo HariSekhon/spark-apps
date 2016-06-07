@@ -14,12 +14,12 @@
 //
 
 // Spark Streaming Kafka => Elasticsearch Application
-// 
+//
 // For other Elasticsearch indexing programs for Hive & Pig see:
 //
 // https://github.com/harisekhon/toolbox
 
-package HariSekhon.Spark
+package com.linkedin.harisekhon.spark
 
 import HariSekhon.Utils._
 import org.elasticsearch.spark._
