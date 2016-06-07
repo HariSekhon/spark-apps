@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2015-06-14 00:38:47 +0100 (Sun, 14 Jun 2015)
 #
-#  https://github.com/harisekhon
+#  https://github.com/harisekhon/spark-apps
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -35,7 +35,8 @@ six
 EOF
 echo
 
-SPARK_VERSION=1.4.1
+#SPARK_VERSION=1.4.1
+SPARK_VERSION=1.6.1
 BIN="bin-hadoop2.6"
 SPARK="spark-$SPARK_VERSION-$BIN"
 TAR="$SPARK.tgz"
