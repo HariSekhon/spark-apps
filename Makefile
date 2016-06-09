@@ -66,7 +66,6 @@ update:
 test:
 	sbt test
 	tests/all.sh
-	bash-tools/all.sh
 
 # useful for quicker compile testing but not deploying to Spark
 .PHONY: p
