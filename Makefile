@@ -62,6 +62,13 @@ update:
 	git submodule update --init --recursive
 	make
 
+.PHONY: update-submodules
+update-submodules:
+	git submodule update --init --remote
+.PHONY: updatem
+updatem:
+	make update-submodules
+
 .PHONY: test
 test:
 	sbt test
