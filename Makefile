@@ -30,7 +30,7 @@ build:
 lib:
 	git submodule update --init --recursive
 	cd lib && mvn clean package
-	sbt eclipse || :
+	sbt eclipse || echo "Ignore this last error, you simply don't have the SBT eclipse plugin, it's optional"
 
 .PHONY: clean
 clean:
