@@ -129,7 +129,7 @@ spark-submit --master local[3] \
 
 ##### Environment variables #####
 
-As with a lot of my programs, such as those in the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) and [Toolbox](https://github.com/harisekhon/toolbox) this application supports use of the following environment variables for convenience instead of having to specify all the switches for ```--index/--type/--es-nodes``` (switches take precedence when present though):
+As with a lot of my programs, such as those in the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) / [Python Tools](https://github.com/harisekhon/pytools) / [Perl Tools](https://github.com/harisekhon/tools) this application supports use of the following environment variables for convenience instead of having to specify all the switches for ```--index/--type/--es-nodes``` (switches take precedence when present though):
 
 * ```$ELASTICSEARCH_HOST```
 * ```$ELASTICSEARCH_INDEX```
