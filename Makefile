@@ -22,9 +22,9 @@ endif
 build:
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
-
 	make lib
 	sbt clean assembly
+	cp -av target/scala-2.10/spark-apps-assembly-*.jar spark-apps.jar
 
 .PHONY: lib
 lib:
@@ -36,6 +36,7 @@ lib:
 clean:
 	cd lib && mvn clean
 	sbt clean
+	rm -f spark-apps.jar
 
 .PHONY: apt-packages
 apt-packages:
