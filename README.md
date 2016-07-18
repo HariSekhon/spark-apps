@@ -45,7 +45,7 @@ make
 ```
 Requires SBT and Maven to be in the $PATH. Make will first download and build my personal Java utility library with Maven to be included as a dependency before using SBT to generate the Spark application jar.
 
-After this finishes you can find the Spark application jar under target/scala-*/.
+After this finishes you can find the self-contained jar ```spark-apps.jar``` at the top level.
 
 ### Usage ###
 
