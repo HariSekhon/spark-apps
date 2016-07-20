@@ -3,6 +3,7 @@ target/
 .classpath
 .idea
 .project
+.sonar
 .worksheet
 *.sc
 *~
