@@ -1,9 +1,9 @@
 project/
 target/
+.idea/
+.sonar/
 .classpath
-.idea
 .project
-.sonar
 .worksheet
 *.sc
 *~
