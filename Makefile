@@ -20,9 +20,9 @@ endif
 
 .PHONY: build
 build:
-	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
-	if [ -x /usr/bin/yum ];     then make yum-packages; fi
-	make lib
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
+	$(MAKE) lib
 	sbt clean assembly
 	cp -av target/scala-2.10/spark-apps-assembly-*.jar spark-apps.jar
 
@@ -59,11 +59,11 @@ yum-packages:
 update:
 	git pull
 	git submodule update --init --recursive
-	make
+	$(MAKE)
 
 .PHONY: update2
 update2:
-	make update-no-recompile
+	$(MAKE) update-no-recompile
 
 .PHONY: update-no-recompile
 update-no-recompile:
@@ -75,12 +75,12 @@ update-submodules:
 	git submodule update --init --remote
 .PHONY: updatem
 updatem:
-	make update-submodules
+	$(MAKE) update-submodules
 
 # useful for quicker compile testing but not deploying to Spark
 .PHONY: p
 p:
-	make package
+	$(MAKE) package
 .PHONY: package
 package:
 	git submodule update --init --recursive
