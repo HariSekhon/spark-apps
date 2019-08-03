@@ -10,6 +10,12 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+REPO := HariSekhon/Spark-Apps
+
+ifneq ("$(wildcard bash-tools/Makefile.in)", "")
+	include bash-tools/Makefile.in
+endif
+
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
@@ -91,7 +97,3 @@ package:
 test:
 	sbt test
 	tests/all.sh
-
-.PHONY: travis
-travis:
-	travis_last_log.py /Spark-Apps
