@@ -91,3 +91,7 @@ package:
 test:
 	sbt test
 	tests/all.sh
+
+.PHONY: travis
+travis:
+	travis_last_log.py /Spark-Apps
